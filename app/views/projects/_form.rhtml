@@ -15,6 +15,7 @@
 <% end %></p>
 <p><%= f.text_field :homepage, :size => 60 %></p>
 <p><%= f.check_box :is_public %></p>
+<p><%= f.check_box :send_attachments %></p>
 <%= wikitoolbar_for 'project_description' %>
 
 <% @project.custom_field_values.each do |value| %>

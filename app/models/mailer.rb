@@ -74,7 +74,8 @@ class Mailer < ActionMailer::Base
          :journal => journal,
          :issue_url => url_for(:controller => 'issues', :action => 'show', :id => issue)
 
-    render_multipart('issue_edit', body)
+    render_multipart('issue_edit', body, journal.project.send_attachments? ? journal.details.collect { |x| Attachment.find_by_id(x.prop_key) } : {} )
+
   end
 
   def reminder(user, issues, days)
@@ -354,14 +355,27 @@ class Mailer < ActionMailer::Base
   # https://rails.lighthouseapp.com/projects/8994/tickets/2338-actionmailer-mailer-views-and-content-type
   # https://rails.lighthouseapp.com/projects/8994/tickets/1799-actionmailer-doesnt-set-template_format-when-rendering-layouts
   
-  def render_multipart(method_name, body)
+  def render_multipart(method_name, body, attachments = {})
     if Setting.plain_text_mail?
       content_type "text/plain"
       body render(:file => "#{method_name}.text.plain.rhtml", :body => body, :layout => 'mailer.text.plain.erb')
     else
-      content_type "multipart/alternative"
-      part :content_type => "text/plain", :body => render(:file => "#{method_name}.text.plain.rhtml", :body => body, :layout => 'mailer.text.plain.erb')
-      part :content_type => "text/html", :body => render_message("#{method_name}.text.html.rhtml", body)
+
+      # Multipart message with attachments
+
+      part :content_type => "multipart/alternative" do |a|
+        a.part "text/plain" do |p|
+          p.body = render(:file => "#{method_name}.text.plain.rhtml", :body => body, :layout => 'mailer.text.plain.erb')
+        end
+        a.part "text/html" do |p|
+          p.body = render_message("#{method_name}.text.html.rhtml", body)
+        end
+      end
+    
+      attachments.each do |a|
+        attachment :content_type => a.content_type, :body => File.read(a.storage_path + "/" + a.disk_filename), :filename => a.filename
+      end
+
     end
   end
 
