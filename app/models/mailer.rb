@@ -373,7 +373,7 @@ class Mailer < ActionMailer::Base
       end
     
       attachments.each do |a|
-        attachment :content_type => a.content_type, :body => File.read(a.storage_path + "/" + a.disk_filename), :filename => a.filename
+        attachment :content_type => a.content_type, :body => File.read(a.storage_path + "/" + a.disk_filename), :filename => a.filename if !a.nil?
       end
 
     end
