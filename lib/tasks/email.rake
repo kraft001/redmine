@@ -129,6 +129,7 @@ END_DESC
       options[:allow_override] = ENV['allow_override'] if ENV['allow_override']
       options[:unknown_user] = ENV['unknown_user'] if ENV['unknown_user']
       options[:no_permission_check] = ENV['no_permission_check'] if ENV['no_permission_check']
+      options[:mail_from] = ENV['mail_from'] if ENV['mail_from']
 
       Redmine::IMAP.check(imap_options, options)
     end

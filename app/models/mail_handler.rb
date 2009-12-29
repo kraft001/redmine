@@ -126,7 +126,7 @@ class MailHandler < ActionMailer::Base
       raise UnauthorizedAction unless user.allowed_to?(:add_issues, project)
     end
     
-    issue = Issue.new(:author => user, :project => project, :tracker => tracker, :category => category, :priority => priority)
+    issue = Issue.new(:author => user, :project => project, :tracker => tracker, :category => category, :priority => priority, :mail_from => @@handler_options[:mail_from])
     # check workflow
     if status && issue.new_statuses_allowed_to(user).include?(status)
       issue.status = status

@@ -36,6 +36,8 @@ class Mailer < ActionMailer::Base
   #   issue_add(issue) => tmail object
   #   Mailer.deliver_issue_add(issue) => sends an email to issue recipients
   def issue_add(issue)
+
+    from issue.mail_from.nil? ? Setting.mail_from : issue.mail_from
     redmine_headers 'Project' => issue.project.identifier,
                     'Issue-Id' => issue.id,
                     'Issue-Author' => issue.author.login
@@ -56,6 +58,8 @@ class Mailer < ActionMailer::Base
   #   Mailer.deliver_issue_edit(journal) => sends an email to issue recipients
   def issue_edit(journal)
     issue = journal.journalized.reload
+
+    from issue.mail_from.nil? ? Setting.mail_from : issue.mail_from
     redmine_headers 'Project' => issue.project.identifier,
                     'Issue-Id' => issue.id,
                     'Issue-Author' => issue.author.login
