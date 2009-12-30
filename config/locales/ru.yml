@@ -523,6 +523,7 @@ ru:
   label_issue_status_plural: Статусы задачи
   label_issue_status: Статус задачи
   label_issue_tracking: Ситуация по задачам
+  label_issue_union: Объединение задач
   label_issue_updated: Обновлена задача
   label_issue_view_all: Просмотреть все задачи
   label_issue_watchers: Наблюдатели
@@ -675,6 +676,7 @@ ru:
   label_tracker: Трекер
   label_tracker_new: Новый трекер
   label_tracker_plural: Трекеры
+  label_union_with_issue: объединить с задачей
   label_updated_time: "Обновлено {{value}} назад"
   label_updated_time_by: "Обновлено {{author}} {{age}} назад"
   label_used_by: Используется
@@ -984,3 +986,5 @@ ru:
   setting_mail_handler_body_delimiters: Truncate emails after one of these lines
   permission_add_subprojects: Create subprojects
   label_subproject_new: New subproject
+  error_issue_not_found_for_union: Невозможно объединить задачи или задача не найдена.
+  notice_successful_issue_union: Задачи успешно объеденены.

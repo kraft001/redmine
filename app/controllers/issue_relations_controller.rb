@@ -39,6 +39,27 @@ class IssueRelationsController < ApplicationController
     end
   end
   
+  def union
+    if (to_issue = Issue.find_by_id(params[:union][:issue_to_id])).nil? || @issue == to_issue
+      redirect_to :controller => "issues", :action => 'show', :id => @issue
+      flash[:error] = l(:error_issue_not_found_for_union)
+    else
+      if to_issue.init_journal(@issue.author, @issue.subject + "\n\n"  + @issue.description).save!
+        @issue.journals.each { |journal| journal.update_attributes(:journalized => to_issue) }
+        if !@issue.attachments.empty?
+          @issue.attachments.each { |attachment| attachment.update_attributes(:container => to_issue) }
+        end
+        @issue.reload
+        @issue.destroy
+        redirect_to :controller => "issues", :action => 'show', :id => to_issue
+        flash[:notice] = l(:notice_successful_issue_union)
+      else
+        redirect_to :controller => "issues", :action => 'show', :id => @issue
+        flash[:error] = l(:notice_not_authorized)
+      end
+    end
+  end
+
   def destroy
     relation = IssueRelation.find(params[:id])
     if request.post? && @issue.relations.include?(relation)

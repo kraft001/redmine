@@ -31,3 +31,18 @@
                  :html => {:id => 'new-relation-form', :style => (@relation ? '' : 'display: none;')}) do |f| %>
 <%= render :partial => 'issue_relations/form', :locals => {:f => f}%>
 <% end %>
+
+<div class="contextual">
+<% if authorize_for('issue_relations', 'new') %>
+    <%= toggle_link l(:button_add), 'new-relation-union'%>
+<% end %>
+</div>
+
+<p><strong><%=l(:label_issue_union)%></strong></p>
+
+<% form_for(:union, @union, 
+                 :url => {:controller => 'issue_relations', :action => 'union', :issue_id => @issue},
+                 :method => :post,
+                 :html => {:id => 'new-relation-union', :style => 'display: none;'}) do |f| %>
+<%= render :partial => 'issue_relations/union', :locals => {:f => f}%>
+<% end %>

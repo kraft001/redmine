@@ -1,0 +1,10 @@
+<%= error_messages_for 'union' %>
+
+<p>
+<%= l(:label_union_with_issue) %> #<%= f.text_field :issue_to_id, :size => 6 %>
+<%= submit_tag l(:button_add) %>
+<%= toggle_link l(:button_cancel), 'new-relation-union'%>
+</p>
+
+<%= javascript_tag "setPredecessorFieldsVisibility();" %>
+
