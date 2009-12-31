@@ -266,10 +266,10 @@ class MailHandler < ActionMailer::Base
     if plain_text_part.nil?
       # no text/plain part found, assuming html-only email
       # strip html tags and remove doctype directive
-      @plain_text_body = strip_tags(@email.body.to_s)
+      @plain_text_body = strip_tags(@email.body.to_s.gsub(/<blockquote>.*<\/blockquote>/m, "\n>--- overquoting removed ---\n").gsub(/<style>.*<\/style>/m, ""))
       @plain_text_body.gsub! %r{^<!DOCTYPE .*$}, ''
     else
-      @plain_text_body = plain_text_part.body.to_s
+      @plain_text_body = plain_text_part.body.to_s.gsub(/>.*>/m, "\n>--- overquoting removed ---\n")
     end
     @plain_text_body.strip!
     @plain_text_body
@@ -290,7 +290,7 @@ class MailHandler < ActionMailer::Base
       user = User.new
       user.mail = addr.spec
       
-      names = addr.name.blank? ? addr.spec.gsub(/@.*$/, '').split('.') : addr.name.split
+      names = addr.spec.gsub(/@.*$/, '').split('.')
       user.firstname = names.shift
       user.lastname = names.join(' ')
       user.lastname = '-' if user.lastname.blank?
