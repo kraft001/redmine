@@ -24,10 +24,10 @@ class GMail < TMail::Mail
         content   = part.body # unquoted automatically by TMail#body
         file_name = (part['content-location'] &&
                      part['content-location'].body) ||
-                    part.sub_header("content-type", "name") ||
-                    part.sub_header("content-disposition", "filename")
+                    part.sub_header("content-disposition", "filename") ||
+                    part.sub_header("content-type", "name")
         if file_name.match(/\=\?.+\?\w\?.+\?\=/)
-          file_name.gsub!(/\=\?.+\?\w\?.+\?\=/, Iconv.new((tmp = file_name.split("?"))[1], 'UTF-8').iconv(tmp[3].unpack("m").last))
+          file_name.gsub!(/\=\?.+\?\w\?.+\?\=/, Iconv.iconv('UTF-8', (tmp = file_name.split("?"))[1], tmp[3].unpack("m").first).first )
         end
         next if file_name.blank? || content.blank?
         attachment = TMail::Attachment.new(content)
