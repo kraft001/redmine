@@ -43,6 +43,7 @@ Redmine::AccessControl.map do |map|
                                   :versions => [:show, :status_by],
                                   :queries => :index,
                                   :reports => :issue_report}
+    map.permission :view_all_issues, {:issues => [:show]}
     map.permission :add_issues, {:issues => [:new, :update_form]}
     map.permission :edit_issues, {:issues => [:edit, :reply, :bulk_edit, :update_form]}
     map.permission :manage_issue_relations, {:issue_relations => [:new, :destroy, :union]}

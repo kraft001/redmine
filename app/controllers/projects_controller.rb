@@ -345,7 +345,7 @@ class ProjectsController < ApplicationController
     @date_from = @date_to - @days
     @with_subprojects = params[:with_subprojects].nil? ? Setting.display_subprojects_issues? : (params[:with_subprojects] == '1')
     @author = (params[:user_id].blank? ? nil : User.active.find(params[:user_id]))
-    
+    @author = User.current if !User.current.allowed_to?(:view_all_issues, @project)
     @activity = Redmine::Activity::Fetcher.new(User.current, :project => @project, 
                                                              :with_subprojects => @with_subprojects,
                                                              :author => @author)

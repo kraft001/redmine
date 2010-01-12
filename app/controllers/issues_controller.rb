@@ -54,7 +54,7 @@ class IssuesController < ApplicationController
     retrieve_query
     sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
     sort_update({'id' => "#{Issue.table_name}.id"}.merge(@query.available_columns.inject({}) {|h, c| h[c.name.to_s] = c.sortable; h}))
-    
+    permission_filter = !User.current.allowed_to?(:view_all_issues, @project) ? "(issues.author_id = #{User.current.id} OR issues.assigned_to_id = #{User.current.id})" : ""
     if @query.valid?
       limit = per_page_option
       respond_to do |format|
@@ -68,6 +68,7 @@ class IssuesController < ApplicationController
       @issue_pages = Paginator.new self, @issue_count, limit, params['page']
       @issues = @query.issues(:include => [:assigned_to, :tracker, :priority, :category, :fixed_version],
                               :order => sort_clause, 
+                              :conditions => permission_filter,
                               :offset => @issue_pages.current.offset, 
                               :limit => limit)
       @issue_count_by_group = @query.issue_count_by_group
@@ -102,19 +103,24 @@ class IssuesController < ApplicationController
   end
   
   def show
-    @journals = @issue.journals.find(:all, :include => [:user, :details], :order => "#{Journal.table_name}.created_on ASC")
-    @journals.each_with_index {|j,i| j.indice = i+1}
-    @journals.reverse! if User.current.wants_comments_in_reverse_order?
-    @changesets = @issue.changesets
-    @changesets.reverse! if User.current.wants_comments_in_reverse_order?
-    @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
-    @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
-    @priorities = IssuePriority.all
-    @time_entry = TimeEntry.new
-    respond_to do |format|
-      format.html { render :template => 'issues/show.rhtml' }
-      format.atom { render :action => 'changes', :layout => false, :content_type => 'application/atom+xml' }
-      format.pdf  { send_data(issue_to_pdf(@issue), :type => 'application/pdf', :filename => "#{@project.identifier}-#{@issue.id}.pdf") }
+    if @issue.author == User.current || @issue.assigned_to == User.current || User.current.allowed_to?(:view_all_issues, @issue.project)
+      @journals = @issue.journals.find(:all, :include => [:user, :details], :order => "#{Journal.table_name}.created_on ASC")
+      @journals.each_with_index {|j,i| j.indice = i+1}
+      @journals.reverse! if User.current.wants_comments_in_reverse_order?
+      @changesets = @issue.changesets
+      @changesets.reverse! if User.current.wants_comments_in_reverse_order?
+      @allowed_statuses = @issue.new_statuses_allowed_to(User.current)
+      @edit_allowed = User.current.allowed_to?(:edit_issues, @project)
+      @priorities = IssuePriority.all
+      @time_entry = TimeEntry.new
+      respond_to do |format|
+        format.html { render :template => 'issues/show.rhtml' }
+        format.atom { render :action => 'changes', :layout => false, :content_type => 'application/atom+xml' }
+        format.pdf  { send_data(issue_to_pdf(@issue), :type => 'application/pdf', :filename => "#{@project.identifier}-#{@issue.id}.pdf") }
+      end
+    else 
+      flash[:error] = l(:notice_not_authorized)
+      redirect_to( {:action => 'index'} )
     end
   end
 
