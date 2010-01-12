@@ -14,6 +14,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+class GMail < TMail::Mail
+  def attachments
+    if multipart?
+      parts.collect { |part| 
+      if part.multipart?
+        part.attachments
+      elsif attachment?(part)
+        content   = part.body # unquoted automatically by TMail#body
+        file_name = (part['content-location'] &&
+                     part['content-location'].body) ||
+                    part.sub_header("content-disposition", "filename") ||
+                    part.sub_header("content-type", "name")
+            
+        next if file_name.blank? || content.blank?
+        attachment = TMail::Attachment.new(content)
+        attachment.original_filename = URI.unescape(file_name.strip.split("'").last)
+        attachment.content_type = part.content_type
+        attachment
+      end
+    }.flatten.compact
+   end
+  end
+end
 
 class MailHandler < ActionMailer::Base
   include ActionView::Helpers::SanitizeHelper
@@ -36,7 +59,12 @@ class MailHandler < ActionMailer::Base
     @@handler_options[:allow_override] << 'status' unless @@handler_options[:issue].has_key?(:status)    
     
     @@handler_options[:no_permission_check] = (@@handler_options[:no_permission_check].to_s == '1' ? true : false)
-    super email
+
+    logger.info "Received mail:\n #{email}" unless logger.nil?
+    mail = GMail.parse(email)
+    mail.base64_decode
+    new.receive(mail)
+
   end
   
   # Processes incoming emails
@@ -266,10 +294,10 @@ class MailHandler < ActionMailer::Base
     if plain_text_part.nil?
       # no text/plain part found, assuming html-only email
       # strip html tags and remove doctype directive
-      @plain_text_body = strip_tags(@email.body.to_s.gsub(/<blockquote>.*<\/blockquote>/m, "\n>--- overquoting removed ---\n").gsub(/<style>.*<\/style>/m, ""))
+      @plain_text_body = strip_tags(@email.body.to_s.gsub(/<blockquote>.*<\/blockquote>/m, "\n\n>--- overquoting removed ---\n\n").gsub(/<style>.*<\/style>/m, ""))
       @plain_text_body.gsub! %r{^<!DOCTYPE .*$}, ''
     else
-      @plain_text_body = plain_text_part.body.to_s.gsub(/>.*>/m, "\n>--- overquoting removed ---\n")
+      @plain_text_body = plain_text_part.body.to_s.gsub(/>.*>/m, "\n\n>--- overquoting removed ---\n\n")
     end
     @plain_text_body.strip!
     @plain_text_body
