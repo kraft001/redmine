@@ -27,7 +27,7 @@ class GMail < TMail::Mail
                     part.sub_header("content-disposition", "filename") ||
                     part.sub_header("content-type", "name")
         if file_name.match(/\=\?.+\?\w\?.+\?\=/)
-          file_name.gsub!(/\=\?.+\?\w\?.+\?\=/, Iconv.iconv('UTF-8', (tmp = file_name.split("?"))[1], tmp[3].unpack("m").first).first )
+          file_name.gsub!(/\=\?.+\?\w\?.+\?\=/, Iconv.iconv('UTF-8', (tmp = file_name.split("?"))[1], tmp[3].unpack(tmp[2]=='B' ? "m" : "M").first).first )
         end
         next if file_name.blank? || content.blank?
         attachment = TMail::Attachment.new(content)
