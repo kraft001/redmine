@@ -65,6 +65,9 @@ he:
       over_x_years:
         one: 'מעל שנה אחת'
         other: 'מעל {{count}} שנים'
+      almost_x_years:
+        one:   "almost 1 year"
+        other: "almost {{count}} years"
       
   number:
     format:
@@ -882,3 +885,4 @@ he:
   text_own_membership_delete_confirmation: |-
     You are about to remove some or all of your permissions and may no longer be able to edit this project after that.
     Are you sure you want to continue?
+  label_close_versions: Close completed versions

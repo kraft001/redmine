@@ -59,6 +59,9 @@ en:
       over_x_years:
         one:   "over 1 year"
         other: "over {{count}} years"
+      almost_x_years:
+        one:   "almost 1 year"
+        other: "almost {{count}} years"
 
   number:
     human:
@@ -504,6 +507,7 @@ en:
   label_version: Version
   label_version_new: New version
   label_version_plural: Versions
+  label_close_versions: Close completed versions
   label_confirmation: Confirmation
   label_export_to: 'Also available in:'
   label_read: Read...

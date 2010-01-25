@@ -69,6 +69,9 @@ pt-BR:
       over_x_years:
         one: 'mais de 1 ano'
         other: 'mais de {{count}} anos'
+      almost_x_years:
+        one:   "almost 1 year"
+        other: "almost {{count}} years"
 
   # numeros
   number:
@@ -905,3 +908,4 @@ pt-BR:
   text_own_membership_delete_confirmation: |-
     You are about to remove some or all of your permissions and may no longer be able to edit this project after that.
     Are you sure you want to continue?
+  label_close_versions: Close completed versions
