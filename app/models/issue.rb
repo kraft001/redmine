@@ -229,6 +229,12 @@ class Issue < ActiveRecord::Base
     # Reload is needed in order to get the right status
     reload
     
+    begin
+      hoptoad_id = self.subject.match(%r{\[+#(\d+)\]})[1].to_i
+      Hoptoad.new.put(hoptoad_id, group = { :resolved => self.status.is_closed }) if hoptoad_id
+    rescue
+    end
+    
     # Update start/due dates of following issues
     relations_from.each(&:set_issue_to_dates)
     
