@@ -29,7 +29,7 @@ module JournalsHelper
                                                 :title => l(:button_edit)) if editable
     end
     content << content_tag('div', links.join(' '), :class => 'contextual') unless links.empty?
-    content << textilizable(journal, :notes)
+    content << textilizable(journal, :notes, options)
     css_classes = "wiki"
     css_classes << " editable" if editable
     content_tag('div', content, :id => "journal-#{journal.id}-notes", :class => css_classes)

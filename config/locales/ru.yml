@@ -996,4 +996,5 @@ ru:
   label_close_versions: Закрыть завершенные версии
   error_issue_not_found_for_union: Невозможно объединить задачи или задача не найдена.
   notice_successful_issue_union: Задачи успешно объеденены.
+  label_quote: "Цитата ..."
 

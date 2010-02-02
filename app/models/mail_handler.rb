@@ -296,10 +296,12 @@ class MailHandler < ActionMailer::Base
     if plain_text_part.nil?
       # no text/plain part found, assuming html-only email
       # strip html tags and remove doctype directive
-      @plain_text_body = strip_tags(@email.body.to_s.gsub(/<blockquote>.*<\/blockquote>/m, "\n\n>--- overquoting removed ---\n\n").gsub(/<style>.*<\/style>/m, ""))
+      @plain_text_body = strip_tags(@email.body.to_s.gsub(/<blockquote>/, "!blockquote!").gsub(/<\/blockquote>/, "!/blockquote!").gsub(/<style>.*<\/style>/m, "").gsub(/\<li\>/, "* "))
+      @plain_text_body = @plain_text_body.gsub /\!blockquote\!.*\!\/blockquote\!/m, "\n" + @plain_text_body.match(/\!blockquote\!.*\!\/blockquote\!/m).to_s.split(/\n/).collect {|line| "> "+line.to_s.gsub(/\!\/*blockquote\!/, "")}.join("\n")
+      @plain_text_body = strip_tags(@plain_text_body.gsub(/<style>.*<\/style>/m, ""))
       @plain_text_body.gsub! %r{^<!DOCTYPE .*$}, ''
     else
-      @plain_text_body = plain_text_part.body.to_s.gsub(/>.*>/m, "\n\n>--- overquoting removed ---\n\n")
+      @plain_text_body = plain_text_part.body
     end
     @plain_text_body.strip!
     @plain_text_body
@@ -343,4 +345,23 @@ class MailHandler < ActionMailer::Base
     end
     body.strip
   end
+
+    def strip_tagss
+      return clone if blank?
+      if index('<')
+        text = ''
+        tokenizer = HTML::Tokenizer.new(self)
+
+        while token = tokenizer.next
+          node = HTML::Node.parse(nil, 0, 0, token, false)
+          # result is only the content of any Text nodes
+          text << node.to_s if node.class == HTML::Text
+        end
+        # strip any comments, and if they have a newline at the end (ie. line with
+        # only a comment) strip that too
+        text.gsub(/<!--(.*?)-->[\n]?/m, '')
+      else
+        clone # already plain text
+      end 
+    end
 end

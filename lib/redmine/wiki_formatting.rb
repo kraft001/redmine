@@ -44,7 +44,7 @@ module Redmine
       end
       
       def to_html(format, text, options = {}, &block)
-        formatter_for(format).new(text).to_html(&block)
+        formatter_for(format).new(text).to_html(options, &block)
       end
     end
     

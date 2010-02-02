@@ -36,11 +36,102 @@ module Redmine
         def to_html(*rules, &block)
           @toc = []
           @macros_runner = block
-          super(*RULES).to_s
+          rules = RULES.push rules
+          text = self.dup
+        
+          @urlrefs = {}
+          @shelf = []
+          textile_rules = [:block_textile_table, :block_textile_lists,
+                           :block_textile_prefix, :inline_textile_image, :inline_textile_link,
+                           :inline_textile_code, :inline_textile_span, :glyphs_textile]
+          markdown_rules = [:refs_markdown, :block_markdown_setext, :block_markdown_atx, :block_markdown_rule,
+                            :block_markdown_bq, :block_markdown_lists, 
+                            :inline_markdown_reflink, :inline_markdown_link]
+          @rules = rules.collect do |rule|
+              case rule
+              when :markdown
+                  markdown_rules
+              when :textile
+                  textile_rules
+              else
+                  rule
+              end
+          end.flatten
+  
+          # standard clean up
+          incoming_entities text 
+          clean_white_space text 
+  
+          # start processor
+          @pre_list = []
+          rip_offtags text
+          no_textile text
+          escape_html_tags text
+          hard_break text 
+          unless @lite_mode
+              refs text
+              # need to do this before text is split by #blocks
+              if @rules.include? :block_js_quotes
+                block_js_quotes text
+              else
+                block_textile_quotes text
+              end
+              blocks text
+          end
+          inline text
+          smooth_offtags text
+  
+          retrieve text
+  
+          text.gsub!( /<\/?notextile>/, '' )
+          text.gsub!( /x%x%/, '&#38;' )
+          clean_html text if filter_html
+          text.strip!
+          text
         end
   
       private
+        def block_textile_quotes( text )
+          text.gsub!( QUOTES_RE ) do |match|
+            lines = match.split( /\n/ )
+            quotes = ''
+            indent = 0
+            lines.each do |line|
+              line =~ QUOTES_CONTENT_RE 
+              bq,content = $1, $2
+              l = bq.count('>')
+              if l != indent
+                quotes << ("\n\n" + (l>indent ? '<blockquote>' * (l-indent) : '</blockquote>' * (indent-l)) + "\n\n")
+                indent = l
+              end
+              quotes << (content + "\n")
+            end
+            quotes << ("\n" + '</blockquote>' * indent + "\n\n")
+            quotes
+          end
+        end
   
+        def block_js_quotes( text )
+          text.gsub!( QUOTES_RE ) do |match|
+            lines = match.split( /\n/ )
+            quotes = ''
+            indent = 0
+            lines.each do |line|
+              line =~ QUOTES_CONTENT_RE 
+              bq,content = $1, $2
+              l = bq.count('>')
+              if l != indent
+                quotes << ("\n\n" + (l>indent ? '<blockquote><a href="#" class="icon icon-add"  onclick="this.parentNode.lastChild.toggle(); this.blur(); return false;">' + Setting.l(:label_quote) + '</a><div style="display:none;">' * (l-indent) : '</div></blockquote>' * (indent-l)) + "\n\n")
+                indent = l
+              end
+              quotes << (content + "\n")
+            end
+            quotes << ("\n" + '</div></blockquote>' * indent + "\n\n")
+            quotes
+          end
+        end
+
+
         # Patch for RedCloth.  Fixed in RedCloth r128 but _why hasn't released it yet.
         # <a href="http://code.whytheluckystiff.net/redcloth/changeset/128">http://code.whytheluckystiff.net/redcloth/changeset/128</a>
         def hard_break( text ) 
