@@ -36,7 +36,7 @@ module Redmine
         def to_html(*rules, &block)
           @toc = []
           @macros_runner = block
-          rules = RULES.push rules
+          rules += RULES
           text = self.dup
         
           @urlrefs = {}
@@ -57,7 +57,7 @@ module Redmine
                   rule
               end
           end.flatten
-  
+
           # standard clean up
           incoming_entities text 
           clean_white_space text 
