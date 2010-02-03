@@ -194,7 +194,7 @@ class MailHandler < ActionMailer::Base
   
   # Adds a note to an existing issue
   def receive_issue_reply(issue_id)
-    status =  (get_keyword(:status) && IssueStatus.find_by_name(get_keyword(:status)))
+    status =  (get_keyword(:status) && IssueStatus.find_by_name(get_keyword(:status)) || IssueStatus.find_by_id(get_keyword(:status)))
     
     issue = Issue.find_by_id(issue_id)
     return unless issue
