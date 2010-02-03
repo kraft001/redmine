@@ -147,9 +147,10 @@ class MailHandler < ActionMailer::Base
   def receive_issue
     project = target_project
     tracker = (get_keyword(:tracker) && project.trackers.find_by_name(get_keyword(:tracker))) || project.trackers.find(:first)
-    category = (get_keyword(:category) && project.issue_categories.find_by_name(get_keyword(:category)))
-    priority = (get_keyword(:priority) && IssuePriority.find_by_name(get_keyword(:priority)))
-    status =  (get_keyword(:status) && IssueStatus.find_by_name(get_keyword(:status)))
+    category = (get_keyword(:category) && project.issue_categories.find_by_name(get_keyword(:category)) || project.issue_categories.find_by_id(get_keyword(:category)))
+    priority = (get_keyword(:priority) && IssuePriority.find_by_name(get_keyword(:priority)) || IssuePriority.find_by_id(get_keyword(:priority)))
+    status =  (get_keyword(:status) && IssueStatus.find_by_name(get_keyword(:status)) || IssueStatus.find_by_id(get_keyword(:status)))
+    assigned_to =  (get_keyword(:assigned_to) && User.find_by_login(get_keyword(:assigned_to)) || User.find_by_id(get_keyword(:assigned_to)))
 
     # check permission
     unless @@handler_options[:no_permission_check]
@@ -161,6 +162,7 @@ class MailHandler < ActionMailer::Base
     if status && issue.new_statuses_allowed_to(user).include?(status)
       issue.status = status
     end
+    issue.assigned_to = assigned_to if assigned_to
     issue.subject = email.subject.chomp
     if issue.subject.blank?
       issue.subject = '(no subject)'

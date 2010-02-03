@@ -125,7 +125,7 @@ END_DESC
                       :move_on_failure => ENV['move_on_failure']}
                       
       options = { :issue => {} }
-      %w(project status tracker category priority).each { |a| options[:issue][a.to_sym] = ENV[a] if ENV[a] }
+      %w(project status tracker category priority assigned_to).each { |a| options[:issue][a.to_sym] = ENV[a] if ENV[a] }
       options[:allow_override] = ENV['allow_override'] if ENV['allow_override']
       options[:unknown_user] = ENV['unknown_user'] if ENV['unknown_user']
       options[:no_permission_check] = ENV['no_permission_check'] if ENV['no_permission_check']
@@ -159,7 +159,7 @@ END_DESC
                       :delete_unprocessed => ENV['delete_unprocessed']}
                       
       options = { :issue => {} }
-      %w(project status tracker category priority).each { |a| options[:issue][a.to_sym] = ENV[a] if ENV[a] }
+      %w(project status tracker category priority assigned_to).each { |a| options[:issue][a.to_sym] = ENV[a] if ENV[a] }
       options[:allow_override] = ENV['allow_override'] if ENV['allow_override']
       options[:unknown_user] = ENV['unknown_user'] if ENV['unknown_user']
       options[:no_permission_check] = ENV['no_permission_check'] if ENV['no_permission_check']
