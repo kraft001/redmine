@@ -159,7 +159,7 @@ class MailHandler < ActionMailer::Base
     
     issue = Issue.new(:author => user, :project => project, :tracker => tracker, :category => category, :priority => priority, :mail_from => @@handler_options[:mail_from])
     # check workflow
-    if status && issue.new_statuses_allowed_to(user).include?(status)
+    if status
       issue.status = status
     end
     issue.assigned_to = assigned_to if assigned_to
