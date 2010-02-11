@@ -1,9 +1,15 @@
 class NoSelfNotified < ActiveRecord::Migration
   def self.up
-    UserPreference.all.each {|up| up.update_attributes(:others => up.others.update(:no_self_notified => true)) }
+    User.all.each do |u|
+      u.pref[:no_self_notified] = true
+      u.pref.save if u.save
+    end
   end
 
   def self.down
-    UserPreference.all.each {|up| up.update_attributes(:others => up.others.update(:no_self_notified => false)) }
+    User.all.each do |u|
+      u.pref[:no_self_notified] = false
+      u.pref.save if u.save
+    end
   end
 end
