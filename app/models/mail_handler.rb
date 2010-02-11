@@ -92,6 +92,8 @@ class MailHandler < ActionMailer::Base
       when 'create'
         @user = MailHandler.create_user_from_email(email)
         if @user
+          @user.pref[:no_self_notified] = true
+          @user.pref.save
           logger.info "MailHandler: [#{@user.login}] account created" if logger && logger.info
           Mailer.deliver_account_information(@user, @user.password)
         else
@@ -159,9 +161,7 @@ class MailHandler < ActionMailer::Base
     
     issue = Issue.new(:author => user, :project => project, :tracker => tracker, :category => category, :priority => priority, :mail_from => @@handler_options[:mail_from])
     # check workflow
-    if status
-      issue.status = status
-    end
+    issue.status = status if status
     issue.assigned_to = assigned_to if assigned_to
     issue.subject = email.subject.chomp
     if issue.subject.blank?
@@ -208,7 +208,7 @@ class MailHandler < ActionMailer::Base
     journal = issue.init_journal(user, cleaned_up_text_body)
     add_attachments(issue)
     # check workflow
-    if status && issue.new_statuses_allowed_to(user).include?(status)
+    if status
       issue.status = status
     end
     issue.save!
