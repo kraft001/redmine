@@ -208,9 +208,7 @@ class MailHandler < ActionMailer::Base
     journal = issue.init_journal(user, cleaned_up_text_body)
     add_attachments(issue)
     # check workflow
-    if status
-      issue.status = status
-    end
+    issue.status = status if status
     issue.save!
     logger.info "MailHandler: issue ##{issue.id} updated by #{user}" if logger && logger.info
     journal
