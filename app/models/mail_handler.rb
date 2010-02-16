@@ -148,7 +148,7 @@ class MailHandler < ActionMailer::Base
   # Creates a new issue
   def receive_issue
     project = target_project
-    tracker = (get_keyword(:tracker) && project.trackers.find_by_name(get_keyword(:tracker)) || project.trackers.find_by_id(get_keyword(:tracker)) || project.trackers.find(:first))
+    tracker = (get_keyword(:tracker) && project.trackers.find_by_name(get_keyword(:tracker)) || project.trackers.find_by_id(get_keyword(:tracker))) || project.trackers.find(:first)
     category = (get_keyword(:category) && project.issue_categories.find_by_name(get_keyword(:category)) || project.issue_categories.find_by_id(get_keyword(:category)))
     priority = (get_keyword(:priority) && IssuePriority.find_by_name(get_keyword(:priority)) || IssuePriority.find_by_id(get_keyword(:priority)))
     status =  (get_keyword(:status) && IssueStatus.find_by_name(get_keyword(:status)) || IssueStatus.find_by_id(get_keyword(:status)))
