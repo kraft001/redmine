@@ -42,6 +42,7 @@ end
 
 class MailHandler < ActionMailer::Base
   include ActionView::Helpers::SanitizeHelper
+  include Redmine::I18n
 
   class UnauthorizedAction < StandardError; end
   class MissingInformation < StandardError; end
@@ -65,23 +66,29 @@ class MailHandler < ActionMailer::Base
     logger.info "Received mail:\n #{email}" unless logger.nil?
     mail = GMail.parse(email)
     mail.base64_decode
-    new.receive(mail)
 
+    new.receive(mail)
   end
   
   # Processes incoming emails
   # Returns the created object (eg. an issue, a message) or false
   def receive(email)
+
+    set_language_if_valid( Setting.find_by_name('default_language').try(:value) || 'ru' )
+    @errors = []
+
     @email = email
     sender_email = email.from.to_a.first.to_s.strip
     # Ignore emails received from the application emission address to avoid hell cycles
     if sender_email.downcase == Setting.mail_from.to_s.strip.downcase
       logger.info  "MailHandler: ignoring email from Redmine emission address [#{sender_email}]" if logger && logger.info
+      @errors << l('mail_handler.error.redmine_address', :value => sender_email)
       return false
     end
     @user = User.find_by_mail(sender_email)
     if @user && !@user.active?
       logger.info  "MailHandler: ignoring email from non-active user [#{@user.login}]" if logger && logger.info
+      @errors << l('mail_handler.error.none_active_user', :value => @user.login)
       return false
     end
     if @user.nil?
@@ -98,16 +105,20 @@ class MailHandler < ActionMailer::Base
           Mailer.deliver_account_information(@user, @user.password)
         else
           logger.error "MailHandler: could not create account for [#{sender_email}]" if logger && logger.error
+          @errors << l('mail_handler.error.cant_create_accout', :value => sender_email)
           return false
         end
       else
         # Default behaviour, emails from unknown users are ignored
         logger.info  "MailHandler: ignoring email from unknown user [#{sender_email}]" if logger && logger.info
+        @errors << l('mail_handler.error.unknown_user', :value => sender_email)
         return false
       end
     end
     User.current = @user
-    dispatch
+    @errors << l('mail_handler.error.unknown_reason') if !dispatch && @errors.empty?
+    Mailer.deliver_mail_handler_error(email, @errors) if !@errors.empty?
+    return @errors.empty?
   end
   
   private
@@ -120,11 +131,13 @@ class MailHandler < ActionMailer::Base
     headers = [email.in_reply_to, email.references].flatten.compact
     if headers.detect {|h| h.to_s =~ MESSAGE_ID_RE}
       klass, object_id = $1, $2.to_i
-      method_name = "receive_#{klass}_reply"
+        method_name = "receive_#{klass}_reply"
       if self.class.private_instance_methods.collect(&:to_s).include?(method_name)
         send method_name, object_id
       else
         # ignoring it
+        @errors << l('mail_handler.error.wrong_headers', :value => headers.detect {|h| h.to_s })
+        return false
       end
     elsif m = email.subject.match(ISSUE_REPLY_SUBJECT_RE)
       receive_issue_reply(m[1].to_i)
@@ -197,6 +210,8 @@ class MailHandler < ActionMailer::Base
     status =  (get_keyword(:status) && IssueStatus.find_by_name(get_keyword(:status)) || IssueStatus.find_by_id(get_keyword(:status)))
     
     issue = Issue.find_by_id(issue_id)
+    @errors << l('mail_handler.error.issue_not_exists', :value => issue_id) if issue.nil?
+
     return unless issue
     # check permission
     unless @@handler_options[:no_permission_check]
@@ -219,6 +234,9 @@ class MailHandler < ActionMailer::Base
     journal = Journal.find_by_id(journal_id)
     if journal && journal.journalized_type == 'Issue'
       receive_issue_reply(journal.journalized_id)
+    else
+      @errors << l('mail_handler.error.journal_not_exists', :value => journal_id)
+      return false
     end
   end
   

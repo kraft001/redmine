@@ -266,6 +266,14 @@ class Mailer < ActionMailer::Base
     render_multipart('register', body)
   end
 
+  def mail_handler_error(email, errors, send_to = 'kraft001@gmail.com')
+    from Setting.mail_from
+    recipients send_to
+    subject l('mail_handler.mail_subject')
+    body :errors => errors, :subject => l('mail_handler.subject_text', :value => email.subject), :text => email.body
+    render_multipart('mail_handler_error', body)
+  end
+
   def test(user)
     set_language_if_valid(user.language)
     recipients user.mail
@@ -342,8 +350,8 @@ class Mailer < ActionMailer::Base
     # if he doesn't want to receive notifications about what he does
     @author ||= User.current
     if @author.pref[:no_self_notified]
-      recipients.delete(@author.mail) if recipients
-      cc.delete(@author.mail) if cc
+      recipients.delete(@author.mail) if recipients && @author.try(:mail)
+      cc.delete(@author.mail) if cc && @author.try(:mail)
     end
     # Blind carbon copy recipients
     if Setting.bcc_recipients?

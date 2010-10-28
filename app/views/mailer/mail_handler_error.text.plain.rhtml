@@ -1,0 +1,11 @@
+<%= l('mail_handler.error_text') %>
+
+<% for error in @errors %>
+    <%= error %>\n
+<% end %>
+
+----------------------------------------
+<%= @subject %>\n
+
+<%= @text[0..50] %> ...
+

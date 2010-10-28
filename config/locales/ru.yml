@@ -997,4 +997,16 @@ ru:
   error_issue_not_found_for_union: Невозможно объединить задачи или задача не найдена.
   notice_successful_issue_union: Задачи успешно объеденены.
   label_quote: "Цитата ..."
-
+  mail_handler:
+    mail_subject: "Ваше письмо не было добавлено"
+    subject_text: "Тема: {{value}}"
+    error_text: "Ваше письмо не было добавлено, \nпо следующим причинам:"
+    error:
+      redmine_address: "Адрес {{value}} принадлежит Redmine"
+      none_active_user: "Пользователь {{value}} неактивен"
+      cant_create_account: "Невозможно создать аккаунт для {{value}}"
+      unknown_user: "Неизвестный пользователь {{value}}"
+      unknown_reason: "Неизвестная причина"
+      wrong_headers: "Неверные заголовки в письме: {{value}}"
+      journal_not_exists: "Журнал с номером #{{value}} не существует"
+      issue_not_exists: "Задача с номером #{{value}} не существует"
