@@ -56,7 +56,7 @@ namespace :redmine do
       issue_id = ENV.has_key?('issue_id') ? ENV['issue_id'].to_i : 2659
       num = Attachment.find(:first, :conditions => {:container_id => issue_id}, :select => ('count(id) as num')).num.to_i
       ((num/per)+1).times do |i|
-        Attachment.find(:all, :conditions => {:container_id => issue_id}, :limit => [i*per, per].join(',')).each do |a|
+        Attachment.find(:all, :conditions => {:container_id => issue_id}, :limit => per).each do |a|
           puts "cant destroy ##{a.id}" if !a.destroy
         end
         puts "[#{[i*per, (i+1)*per].join(' .. ')}] attachments killed in issue ##{issue_id}"
