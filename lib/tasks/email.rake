@@ -136,7 +136,7 @@ END_DESC
         %w(project status tracker category priority assigned_to).each { |a| options[:issue][a.to_sym] = set[a] if set[a] }
         options[:allow_override] = set['allow_override'] if set['allow_override']
         options[:unknown_user] = set['unknown_user'] if set['unknown_user']
-        options[:no_permission_check] = set['no_permission_check'] if set'no_permission_check']
+        options[:no_permission_check] = set['no_permission_check'] if set['no_permission_check']
         options[:mail_from] = set['mail_from'] if set['mail_from']
 
         Redmine::IMAP.check(imap_options, options)
