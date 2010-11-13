@@ -115,23 +115,32 @@ Examples:
 END_DESC
 
     task :receive_imap => :environment do
-      imap_options = {:host => ENV['host'],
-                      :port => ENV['port'],
-                      :ssl => ENV['ssl'],
-                      :username => ENV['username'],
-                      :password => ENV['password'],
-                      :folder => ENV['folder'],
-                      :move_on_success => ENV['move_on_success'],
-                      :move_on_failure => ENV['move_on_failure']}
-                      
-      options = { :issue => {} }
-      %w(project status tracker category priority assigned_to).each { |a| options[:issue][a.to_sym] = ENV[a] if ENV[a] }
-      options[:allow_override] = ENV['allow_override'] if ENV['allow_override']
-      options[:unknown_user] = ENV['unknown_user'] if ENV['unknown_user']
-      options[:no_permission_check] = ENV['no_permission_check'] if ENV['no_permission_check']
-      options[:mail_from] = ENV['mail_from'] if ENV['mail_from']
+      require 'yaml'
+      if ENV['yaml']
+        settings = YAML::load(open(ENV['yaml']))
+      else
+        settings = {'ENV' => ENV}
+      end
+      settings.each do |name, set|
+        puts "run #{name} recieve task"
+        imap_options = {:host => set['host'],
+                        :port => set['port'],
+                        :ssl => set['ssl'],
+                        :username => set['username'],
+                        :password => set['password'],
+                        :folder => set['folder'],
+                        :move_on_success => set['move_on_success'],
+                        :move_on_failure => set['move_on_failure']}
+                        
+        options = { :issue => {} }
+        %w(project status tracker category priority assigned_to).each { |a| options[:issue][a.to_sym] = set[a] if set[a] }
+        options[:allow_override] = set['allow_override'] if set['allow_override']
+        options[:unknown_user] = set['unknown_user'] if set['unknown_user']
+        options[:no_permission_check] = set['no_permission_check'] if set'no_permission_check']
+        options[:mail_from] = set['mail_from'] if set['mail_from']
 
-      Redmine::IMAP.check(imap_options, options)
+        Redmine::IMAP.check(imap_options, options)
+      end
     end
     
     desc <<-END_DESC
