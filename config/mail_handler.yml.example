@@ -1,0 +1,56 @@
+production:
+
+  imap_test:
+    protocol: imap           #receive protocol (default: standart input)
+    host: 127.0.0.1          #IMAP server host (default: 127.0.0.1)
+    port: 143                #IMAP server port (default: 143)
+    ssl: false               #Use SSL? (default: false)
+    username: user           #IMAP account
+    password:                #IMAP password
+    folder: INBOX            #IMAP folder to read (default: INBOX)
+    unknown_user: create     #how to handle emails from an unknown user
+                               #ACTION can be one of the following values:
+                               #ignore: email is ignored (default)
+                               #accept: accept as anonymous user
+                               #create: create a user account
+    no_permission_check: 1     #disable permission checking when receiving the email
+
+    # other options:
+    project: test_project    #identifier of the target project
+    status: 12               #name or id of the target status
+    tracker: 1               #name or id of the target tracker
+    category: 2              #name or id of the target category
+    priority: 4              #name or if of the target priority
+    allow_override: ATTRS    #allow email content to override attributes
+                             #specified by previous options
+                             #ATTRS is a comma separated list of attributes
+
+    # Processed emails control options:
+    move_on_success: MAILBOX #move emails that were successfully received
+                             #to MAILBOX instead of deleting them
+    move_on_failure: MAILBOX #as prev.
+
+  pop3_test:
+    protocol: pop3
+    host: 127.0.0.1          #POP3 server host (default: 127.0.0.1)
+    port: 110                #POP3 server port (default: 110)
+    username: user           #POP3 account
+    password:                #POP3 password
+    apop: 1                  #use APOP authentication (default: false)
+    delete_unprocessed: 1    #delete messages that could not be processed
+                               #successfully from the server (default
+                               #behaviour is to leave them on the server)
+
+    #See imap example for more options.
+
+development:
+  stdin:
+    protocol: stdin         # is default (to read emails from standart input)
+
+    project: test_project    #identifier of the target project
+    status: 12               #name or id of the target status
+    tracker: 1               #name or id of the target tracker
+    category: 2              #name or id of the target category
+    priority: 4              #name or if of the target priority
+    allow_override: ATTRS    #allow email content to override attributes
+
