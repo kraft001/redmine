@@ -57,7 +57,7 @@ class ProjectsControllerTest < ActionController::TestCase
     assert_response :success
     assert_template 'common/feed.atom.rxml'
     assert_select 'feed>title', :text => 'Redmine: Latest projects'
-    assert_select 'feed>entry', :count => Project.count(:conditions => Project.visible_by(User.current))
+    assert_select 'feed>entry', :count => Project.count(:conditions => Project.visible_condition(User.current))
   end
   
   context "#index" do
@@ -285,6 +285,22 @@ class ProjectsControllerTest < ActionController::TestCase
         assert_kind_of Project, project
         assert_not_nil project.errors.on(:parent_id)
       end
+    end
+  end
+  
+  def test_create_should_preserve_modules_on_validation_failure
+    with_settings :default_projects_modules => ['issue_tracking', 'repository'] do
+      @request.session[:user_id] = 1
+      assert_no_difference 'Project.count' do
+        post :create, :project => {
+          :name => "blog",
+          :identifier => "",
+          :enabled_module_names => %w(issue_tracking news)
+        }
+      end
+      assert_response :success
+      project = assigns(:project)
+      assert_equal %w(issue_tracking news), project.enabled_module_names.sort
     end
   end
   

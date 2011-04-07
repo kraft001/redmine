@@ -136,8 +136,8 @@ it:
   general_text_no: 'no'
   general_text_yes: 'sì'
   general_lang_name: 'Italiano'
-  general_csv_separator: ','
-  general_csv_decimal_separator: '.'
+  general_csv_separator: ';'
+  general_csv_decimal_separator: ','
   general_csv_encoding: ISO-8859-1
   general_pdf_encoding: ISO-8859-1
   general_first_day_of_week: '1'
@@ -730,7 +730,7 @@ it:
   label_generate_key: Genera una chiave
   setting_mail_handler_api_enabled: Abilita WS per le email in arrivo
   setting_mail_handler_api_key: Chiave API
-  text_email_delivery_not_configured: "La consegna via email non è configurata e le notifiche sono disabilitate.\nConfigura il tuo server SMTP in config/email.yml e riavvia l'applicazione per abilitarle."
+  text_email_delivery_not_configured: "La consegna via email non è configurata e le notifiche sono disabilitate.\nConfigura il tuo server SMTP in config/configuration.yml e riavvia l'applicazione per abilitarle."
   field_parent_title: Pagina principale
   label_issue_watchers: Osservatori
   setting_commit_logs_encoding: Codifica dei messaggi di commit
@@ -937,3 +937,16 @@ it:
   setting_commit_logtime_enabled: Abilita registrazione del tempo di collegamento
   notice_gantt_chart_truncated: Il grafico è stato troncato perchè eccede il numero di oggetti (%{max}) da visualizzare
   setting_gantt_items_limit: Massimo numero di oggetti da visualizzare sul diagramma di gantt
+  field_warn_on_leaving_unsaved: Warn me when leaving a page with unsaved text
+  text_warn_on_leaving_unsaved: The current page contains unsaved text that will be lost if you leave this page.
+  label_my_queries: My custom queries
+  text_journal_changed_no_detail: "%{label} updated"
+  label_news_comment_added: Comment added to a news
+  button_expand_all: Expand all
+  button_collapse_all: Collapse all
+  label_additional_workflow_transitions_for_assignee: Additional transitions allowed when the user is the assignee
+  label_additional_workflow_transitions_for_author: Additional transitions allowed when the user is the author
+  label_bulk_edit_selected_time_entries: Bulk edit selected time entries
+  text_time_entries_destroy_confirmation: Are you sure you want to delete the selected time entr(y/ies)?
+  label_role_anonymous: Anonymous
+  label_role_non_member: Non member
