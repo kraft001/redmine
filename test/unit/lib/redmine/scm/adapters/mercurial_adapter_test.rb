@@ -8,12 +8,19 @@ begin
     TEMPLATE_NAME = Redmine::Scm::Adapters::MercurialAdapter::TEMPLATE_NAME
     TEMPLATE_EXTENSION = Redmine::Scm::Adapters::MercurialAdapter::TEMPLATE_EXTENSION
 
-    REPOSITORY_PATH = RAILS_ROOT.gsub(%r{config\/\.\.}, '') + '/tmp/test/mercurial_repository'
+    REPOSITORY_PATH = RAILS_ROOT.gsub(%r{config\/\.\.}, '') +
+                         '/tmp/test/mercurial_repository'
 
     CHAR_1_HEX = "\xc3\x9c"
 
     if File.directory?(REPOSITORY_PATH)
       def setup
+        adapter_class = Redmine::Scm::Adapters::MercurialAdapter
+        assert adapter_class
+        assert adapter_class.client_command
+        assert_equal true, adapter_class.client_available
+        assert_equal true, adapter_class.client_version_above?([0, 9, 5])
+
         @adapter = Redmine::Scm::Adapters::MercurialAdapter.new(
                               REPOSITORY_PATH,
                               nil,
@@ -21,7 +28,6 @@ begin
                               nil,
                              'ISO-8859-1')
         @diff_c_support = true
-
         @char_1        = CHAR_1_HEX.dup
         @tag_char_1    = "tag-#{CHAR_1_HEX}-00"
         @branch_char_0 = "branch-#{CHAR_1_HEX}-00"

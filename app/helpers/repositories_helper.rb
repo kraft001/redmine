@@ -156,12 +156,18 @@ module RepositoriesHelper
               :undef => :replace, :replace => '?').encode("UTF-8")
       end
     else
-      # removes invalid UTF8 sequences
+      ic = Iconv.new('UTF-8', 'UTF-8')
+      txtar = ""
       begin
-        str = Iconv.conv('UTF-8//IGNORE', 'UTF-8', str + '  ')[0..-3]
-      rescue Iconv::InvalidEncoding
-        # "UTF-8//IGNORE" is not supported on some OS
+        txtar += ic.iconv(str)
+      rescue Iconv::IllegalSequence
+        txtar += $!.success
+        str = '?' + $!.failed[1,$!.failed.length]
+        retry
+      rescue
+        txtar += $!.success
       end
+      str = txtar
     end
     str
   end
@@ -247,22 +253,22 @@ module RepositoriesHelper
   end
 
   def cvs_field_tags(form, repository)
-      content_tag('p', form.text_field(:root_url,
-                       :label => 'CVSROOT', :size => 60, :required => true,
-                       :disabled => !repository.new_record?)) +
-      content_tag('p', form.text_field(:url, :label => 'Module',
-                       :size => 30, :required => true,
-                       :disabled => !repository.new_record?)) +
-      content_tag('p', form.select(:log_encoding, [nil] + Setting::ENCODINGS,
-                                   :label => 'Commit messages encoding', :required => true))
+    content_tag('p', form.text_field(:root_url,
+                     :label => 'CVSROOT', :size => 60, :required => true,
+                     :disabled => !repository.new_record?)) +
+    content_tag('p', form.text_field(:url, :label => 'Module',
+                     :size => 30, :required => true,
+                     :disabled => !repository.new_record?)) +
+    content_tag('p', form.select(:log_encoding, [nil] + Setting::ENCODINGS,
+                                 :label => 'Commit messages encoding', :required => true))
   end
 
   def bazaar_field_tags(form, repository)
-      content_tag('p', form.text_field(:url, :label => 'Root directory',
-                       :size => 60, :required => true,
-                       :disabled => (repository && !repository.new_record?))) +
-      content_tag('p', form.select(:log_encoding, [nil] + Setting::ENCODINGS,
-                                   :label => 'Commit messages encoding', :required => true))
+    content_tag('p', form.text_field(:url, :label => 'Root directory',
+                     :size => 60, :required => true,
+                     :disabled => (repository && !repository.new_record?))) +
+    content_tag('p', form.select(:log_encoding, [nil] + Setting::ENCODINGS,
+                                 :label => 'Commit messages encoding', :required => true))
   end
 
   def filesystem_field_tags(form, repository)

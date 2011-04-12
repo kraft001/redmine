@@ -145,7 +145,7 @@ module Redmine
         def cat(path, identifier=nil)
           return nil
         end
-        
+
         def with_leading_slash(path)
           path ||= ''
           (path[0,1]!="/") ? "/#{path}" : path
@@ -175,7 +175,7 @@ module Redmine
           info = self.info
           info ? info.root_url : nil
         end
-        
+
         def target(path)
           path ||= ''
           base = path.match(/^\//) ? root_url : url
@@ -223,7 +223,7 @@ module Redmine
           q = (Redmine::Platform.mswin? ? '"' : "'")
           cmd.to_s.gsub(/(\-\-(password|username))\s+(#{q}[^#{q}]+#{q}|[^#{q}]\S+)/, '\\1 xxxx')
         end
-        
+
         def strip_credential(cmd)
           self.class.strip_credential(cmd)
         end
@@ -300,29 +300,24 @@ module Redmine
       end
       
       class Revision
-        attr_accessor :scmid, :name, :author, :time, :message, :paths, :revision, :branch
-        attr_writer :identifier
+        attr_accessor :scmid, :name, :author, :time, :message,
+                      :paths, :revision, :branch, :identifier
 
         def initialize(attributes={})
           self.identifier = attributes[:identifier]
-          self.scmid = attributes[:scmid]
-          self.name = attributes[:name] || self.identifier
-          self.author = attributes[:author]
-          self.time = attributes[:time]
-          self.message = attributes[:message] || ""
-          self.paths = attributes[:paths]
-          self.revision = attributes[:revision]
-          self.branch = attributes[:branch]
-        end
-
-        # Returns the identifier of this revision; see also Changeset model
-        def identifier
-          (@identifier || revision).to_s
+          self.scmid      = attributes[:scmid]
+          self.name       = attributes[:name] || self.identifier
+          self.author     = attributes[:author]
+          self.time       = attributes[:time]
+          self.message    = attributes[:message] || ""
+          self.paths      = attributes[:paths]
+          self.revision   = attributes[:revision]
+          self.branch     = attributes[:branch]
         end
 
         # Returns the readable identifier.
         def format_identifier
-          identifier
+          self.identifier.to_s
         end
       end
 

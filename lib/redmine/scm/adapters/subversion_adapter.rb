@@ -239,15 +239,21 @@ module Redmine
           shellout(cmd) do |io|
             io.each_line do |line|
               next unless line =~ %r{^\s*(\d+)\s*(\S+)\s(.*)$}
-              blame.add_line($3.rstrip, Revision.new(:identifier => $1.to_i, :author => $2.strip))
+              rev = $1
+              blame.add_line($3.rstrip,
+                   Revision.new(
+                      :identifier => rev,
+                      :revision   => rev,
+                      :author     => $2.strip
+                      ))
             end
           end
           return nil if $? && $?.exitstatus != 0
           blame
         end
-        
+
         private
-        
+
         def credentials_string
           str = ''
           str << " --username #{shell_quote(@login)}" unless @login.blank?
@@ -255,9 +261,10 @@ module Redmine
           str << " --no-auth-cache --non-interactive"
           str
         end
-        
+
         # Helper that iterates over the child elements of a xml node
-        # MiniXml returns a hash when a single child is found or an array of hashes for multiple children
+        # MiniXml returns a hash when a single child is found
+        # or an array of hashes for multiple children
         def each_xml_element(node, name)
           if node && node[name]
             if node[name].is_a?(Hash)

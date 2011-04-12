@@ -84,31 +84,31 @@ module Redmine
       class IFPDF < FPDF
         include Redmine::I18n
         attr_accessor :footer_date
-        
+
         def initialize(lang)
           super()
           set_language_if_valid lang
-          case current_language.to_s.downcase
-          when 'ko'
+          case l(:general_pdf_encoding).upcase
+          when 'CP949'
             extend(PDF_Korean)
             AddUHCFont()
             @font_for_content = 'UHC'
             @font_for_footer  = 'UHC'
-          when 'ja'
+          when 'CP932'
             extend(PDF_Japanese)
             AddSJISFont()
             @font_for_content = 'SJIS'
-            @font_for_footer = 'SJIS'
-          when 'zh'
+            @font_for_footer  = 'SJIS'
+          when 'GB18030'
             extend(PDF_Chinese)
             AddGBFont()
             @font_for_content = 'GB'
-            @font_for_footer = 'GB'
-          when 'zh-tw'
+            @font_for_footer  = 'GB'
+          when 'BIG5'
             extend(PDF_Chinese)
             AddBig5Font()
             @font_for_content = 'Big5'
-            @font_for_footer = 'Big5'
+            @font_for_footer  = 'Big5'
           else
             @font_for_content = 'Arial'
             @font_for_footer  = 'Helvetica'
@@ -116,11 +116,11 @@ module Redmine
           SetCreator(Redmine::Info.app_name)
           SetFont(@font_for_content)
         end
-        
+
         def SetFontStyle(style, size)
           SetFont(@font_for_content, style, size)
         end
-        
+
         def SetTitle(txt)
           txt = begin
             utf16txt = Iconv.conv('UTF-16BE', 'UTF-8', txt)
@@ -189,11 +189,7 @@ module Redmine
 
       # Returns a PDF string of a list of issues
       def issues_to_pdf(issues, project, query)
-        if ( current_language.to_s.downcase == 'ko'    ||
-             current_language.to_s.downcase == 'ja'    ||
-             current_language.to_s.downcase == 'zh'    ||
-             current_language.to_s.downcase == 'zh-tw' ||
-             current_language.to_s.downcase == 'th'    )
+        if l(:general_pdf_encoding).upcase != 'UTF-8'
           pdf = IFPDF.new(current_language)
         else
           pdf = ITCPDF.new(current_language)
@@ -269,11 +265,7 @@ module Redmine
 
       # Returns a PDF string of a single issue
       def issue_to_pdf(issue)
-        if ( current_language.to_s.downcase == 'ko'    ||
-             current_language.to_s.downcase == 'ja'    ||
-             current_language.to_s.downcase == 'zh'    ||
-             current_language.to_s.downcase == 'zh-tw' ||
-             current_language.to_s.downcase == 'th'    )
+        if l(:general_pdf_encoding).upcase != 'UTF-8'
           pdf = IFPDF.new(current_language)
         else
           pdf = ITCPDF.new(current_language)

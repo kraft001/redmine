@@ -88,12 +88,30 @@ class Issue < ActiveRecord::Base
   
   # Returns a SQL conditions string used to find all issues visible by the specified user
   def self.visible_condition(user, options={})
-    Project.allowed_to_condition(user, :view_issues, options)
+    Project.allowed_to_condition(user, :view_issues, options) do |role, user|
+      case role.issues_visibility
+      when 'default'
+        nil
+      when 'own'
+        "(#{table_name}.author_id = #{user.id} OR #{table_name}.assigned_to_id = #{user.id})"
+      else
+        '1=0'
+      end
+    end
   end
 
   # Returns true if usr or current user is allowed to view the issue
   def visible?(usr=nil)
-    (usr || User.current).allowed_to?(:view_issues, self.project)
+    (usr || User.current).allowed_to?(:view_issues, self.project) do |role, user|
+      case role.issues_visibility
+      when 'default'
+        true
+      when 'own'
+        self.author == user || self.assigned_to == user
+      else
+        false
+      end
+    end
   end
   
   def after_initialize
@@ -647,14 +665,16 @@ class Issue < ActiveRecord::Base
   def self.by_subproject(project)
     ActiveRecord::Base.connection.select_all("select    s.id as status_id, 
                                                 s.is_closed as closed, 
-                                                i.project_id as project_id,
-                                                count(i.id) as total 
+                                                #{Issue.table_name}.project_id as project_id,
+                                                count(#{Issue.table_name}.id) as total 
                                               from 
-                                                #{Issue.table_name} i, #{IssueStatus.table_name} s
+                                                #{Issue.table_name}, #{Project.table_name}, #{IssueStatus.table_name} s
                                               where 
-                                                i.status_id=s.id 
-                                                and i.project_id IN (#{project.descendants.active.collect{|p| p.id}.join(',')})
-                                              group by s.id, s.is_closed, i.project_id") if project.descendants.active.any?
+                                                #{Issue.table_name}.status_id=s.id
+                                                and #{Issue.table_name}.project_id = #{Project.table_name}.id
+                                                and #{visible_condition(User.current, :project => project, :with_subprojects => true)}
+                                                and #{Issue.table_name}.project_id <> #{project.id}
+                                              group by s.id, s.is_closed, #{Issue.table_name}.project_id") if project.descendants.active.any?
   end
   # End ReportsController extraction
   
@@ -864,20 +884,19 @@ class Issue < ActiveRecord::Base
     select_field = options.delete(:field)
     joins = options.delete(:joins)
 
-    where = "i.#{select_field}=j.id"
+    where = "#{Issue.table_name}.#{select_field}=j.id"
     
     ActiveRecord::Base.connection.select_all("select    s.id as status_id, 
                                                 s.is_closed as closed, 
                                                 j.id as #{select_field},
-                                                count(i.id) as total 
+                                                count(#{Issue.table_name}.id) as total 
                                               from 
-                                                  #{Issue.table_name} i, #{IssueStatus.table_name} s, #{joins} j
+                                                  #{Issue.table_name}, #{Project.table_name}, #{IssueStatus.table_name} s, #{joins} j
                                               where 
-                                                i.status_id=s.id 
+                                                #{Issue.table_name}.status_id=s.id 
                                                 and #{where}
-                                                and i.project_id=#{project.id}
+                                                and #{Issue.table_name}.project_id=#{Project.table_name}.id
+                                                and #{visible_condition(User.current, :project => project)}
                                               group by s.id, s.is_closed, j.id")
   end
-  
-
 end

@@ -145,8 +145,8 @@ bs:
   general_lang_name: 'Bosanski'
   general_csv_separator: ','
   general_csv_decimal_separator: '.'
-  general_csv_encoding: utf8
-  general_pdf_encoding: utf8
+  general_csv_encoding: UTF-8
+  general_pdf_encoding: UTF-8
   general_first_day_of_week: '7'
   
   notice_account_activated: Vaš nalog je aktiviran. Možete se prijaviti.
@@ -963,3 +963,9 @@ bs:
   text_time_entries_destroy_confirmation: Are you sure you want to delete the selected time entr(y/ies)?
   label_role_anonymous: Anonymous
   label_role_non_member: Non member
+  label_issue_note_added: Note added
+  label_issue_status_updated: Status updated
+  label_issue_priority_updated: Priority updated
+  label_issues_visibility_own: Issues created by or assigned to the user
+  field_issues_visibility: Issues visibility
+  label_issues_visibility_all: All issues

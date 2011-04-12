@@ -174,6 +174,13 @@ class Project < ActiveRecord::Base
       if statement_by_role.empty?
         "1=0"
       else
+        if block_given?
+          statement_by_role.each do |role, statement|
+            if s = yield(role, user)
+              statement_by_role[role] = "(#{statement} AND (#{s}))"
+            end
+          end
+        end
         "((#{base_statement}) AND (#{statement_by_role.values.join(' OR ')}))"
       end
     end
@@ -683,6 +690,7 @@ class Project < ActiveRecord::Base
   end
   
   # Copies issues from +project+
+  # Note: issues assigned to a closed version won't be copied due to validation rules
   def copy_issues(project)
     # Stores the source issue id as a key and the copied issues as the
     # value.  Used to map the two togeather for issue relations.

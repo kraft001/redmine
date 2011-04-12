@@ -101,6 +101,64 @@ class RepositoryCvsTest < ActiveSupport::TestCase
       assert_equal entries[2].lastrev.revision, '3'
       assert_equal entries[2].lastrev.author, 'LANG'
     end
+
+    def test_entries_invalid_path
+      @repository.fetch_changesets
+      @repository.reload
+      assert_nil @repository.entries('missing')
+      assert_nil @repository.entries('missing', '3')
+    end
+
+    def test_entries_invalid_revision
+      @repository.fetch_changesets
+      @repository.reload
+      assert_nil @repository.entries('', '123')
+    end
+
+    def test_cat
+      @repository.fetch_changesets
+      @repository.reload
+      buf = @repository.cat('README')
+      assert buf
+      lines = buf.split("\n")
+      assert_equal 2, lines.length
+      assert_equal 'with one change', lines[1]
+      buf = @repository.cat('README', '1')
+      assert buf
+      lines = buf.split("\n")
+      assert_equal 1, lines.length
+      assert_equal 'CVS test repository', lines[0]
+      assert_nil @repository.cat('missing.rb')
+
+      # sources/welcome_controller.rb is removed at revision 5.
+      assert @repository.cat('sources/welcome_controller.rb', '4')
+      assert @repository.cat('sources/welcome_controller.rb', '5').blank?
+
+      # invalid revision
+      assert @repository.cat('README', '123').blank?
+    end
+
+    def test_annotate
+      @repository.fetch_changesets
+      @repository.reload
+      ann = @repository.annotate('README')
+      assert ann
+      assert_equal 2, ann.revisions.length
+      assert_equal '1.2', ann.revisions[1].revision
+      assert_equal 'LANG', ann.revisions[1].author
+      assert_equal 'with one change', ann.lines[1]
+
+      ann = @repository.annotate('README', '1')
+      assert ann
+      assert_equal 1, ann.revisions.length
+      assert_equal '1.1', ann.revisions[0].revision
+      assert_equal 'LANG', ann.revisions[0].author
+      assert_equal 'CVS test repository', ann.lines[0]
+
+     # invalid revision
+     assert_nil @repository.annotate('README', '123')
+   end
+
   else
     puts "CVS test repository NOT FOUND. Skipping unit tests !!!"
     def test_fake; assert true end

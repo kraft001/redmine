@@ -65,35 +65,76 @@ class IssueTest < ActiveSupport::TestCase
     assert_equal 'PostgreSQL', issue.custom_value_for(field).value
   end
   
+  def assert_visibility_match(user, issues)
+    assert_equal issues.collect(&:id).sort, Issue.all.select {|issue| issue.visible?(user)}.collect(&:id).sort
+  end
+
   def test_visible_scope_for_anonymous
     # Anonymous user should see issues of public projects only
     issues = Issue.visible(User.anonymous).all
     assert issues.any?
     assert_nil issues.detect {|issue| !issue.project.is_public?}
+    assert_visibility_match User.anonymous, issues
+  end
+  
+  def test_visible_scope_for_anonymous_with_own_issues_visibility
+    Role.anonymous.update_attribute :issues_visibility, 'own'
+    Issue.create!(:project_id => 1, :tracker_id => 1, :author_id => User.anonymous.id, :subject => 'Issue by anonymous')
+    
+    issues = Issue.visible(User.anonymous).all
+    assert issues.any?
+    assert_nil issues.detect {|issue| issue.author != User.anonymous}
+    assert_visibility_match User.anonymous, issues
+  end
+  
+  def test_visible_scope_for_anonymous_without_view_issues_permissions
     # Anonymous user should not see issues without permission
     Role.anonymous.remove_permission!(:view_issues)
     issues = Issue.visible(User.anonymous).all
     assert issues.empty?
+    assert_visibility_match User.anonymous, issues
   end
   
-  def test_visible_scope_for_user
+  def test_visible_scope_for_non_member
     user = User.find(9)
     assert user.projects.empty?
     # Non member user should see issues of public projects only
     issues = Issue.visible(user).all
     assert issues.any?
     assert_nil issues.detect {|issue| !issue.project.is_public?}
+    assert_visibility_match user, issues
+  end
+  
+  def test_visible_scope_for_non_member_with_own_issues_visibility
+    Role.non_member.update_attribute :issues_visibility, 'own'
+    Issue.create!(:project_id => 1, :tracker_id => 1, :author_id => 9, :subject => 'Issue by non member')
+    user = User.find(9)
+    
+    issues = Issue.visible(user).all
+    assert issues.any?
+    assert_nil issues.detect {|issue| issue.author != user}
+    assert_visibility_match user, issues
+  end
+  
+  def test_visible_scope_for_non_member_without_view_issues_permissions
     # Non member user should not see issues without permission
     Role.non_member.remove_permission!(:view_issues)
-    user.reload
+    user = User.find(9)
+    assert user.projects.empty?
     issues = Issue.visible(user).all
     assert issues.empty?
+    assert_visibility_match user, issues
+  end
+  
+  def test_visible_scope_for_member
+    user = User.find(9)
     # User should see issues of projects for which he has view_issues permissions only
+    Role.non_member.remove_permission!(:view_issues)
     Member.create!(:principal => user, :project_id => 2, :role_ids => [1])
-    user.reload
     issues = Issue.visible(user).all
     assert issues.any?
     assert_nil issues.detect {|issue| issue.project_id != 2}
+    assert_visibility_match user, issues
   end
   
   def test_visible_scope_for_admin
@@ -104,6 +145,7 @@ class IssueTest < ActiveSupport::TestCase
     assert issues.any?
     # Admin should see issues on private projects that he does not belong to
     assert issues.detect {|issue| !issue.project.is_public?}
+    assert_visibility_match user, issues
   end
   
   def test_visible_scope_with_project
@@ -788,45 +830,53 @@ class IssueTest < ActiveSupport::TestCase
   end
 
   test "#by_tracker" do
+    User.current = User.anonymous
     groups = Issue.by_tracker(Project.find(1))
     assert_equal 3, groups.size
     assert_equal 7, groups.inject(0) {|sum, group| sum + group['total'].to_i}
   end
 
   test "#by_version" do
+    User.current = User.anonymous
     groups = Issue.by_version(Project.find(1))
     assert_equal 3, groups.size
     assert_equal 3, groups.inject(0) {|sum, group| sum + group['total'].to_i}
   end
 
   test "#by_priority" do
+    User.current = User.anonymous
     groups = Issue.by_priority(Project.find(1))
     assert_equal 4, groups.size
     assert_equal 7, groups.inject(0) {|sum, group| sum + group['total'].to_i}
   end
 
   test "#by_category" do
+    User.current = User.anonymous
     groups = Issue.by_category(Project.find(1))
     assert_equal 2, groups.size
     assert_equal 3, groups.inject(0) {|sum, group| sum + group['total'].to_i}
   end
 
   test "#by_assigned_to" do
+    User.current = User.anonymous
     groups = Issue.by_assigned_to(Project.find(1))
     assert_equal 2, groups.size
     assert_equal 2, groups.inject(0) {|sum, group| sum + group['total'].to_i}
   end
 
   test "#by_author" do
+    User.current = User.anonymous
     groups = Issue.by_author(Project.find(1))
     assert_equal 4, groups.size
     assert_equal 7, groups.inject(0) {|sum, group| sum + group['total'].to_i}
   end
 
   test "#by_subproject" do
+    User.current = User.anonymous
     groups = Issue.by_subproject(Project.find(1))
-    assert_equal 2, groups.size
-    assert_equal 5, groups.inject(0) {|sum, group| sum + group['total'].to_i}
+    # Private descendant not visible
+    assert_equal 1, groups.size
+    assert_equal 2, groups.inject(0) {|sum, group| sum + group['total'].to_i}
   end
   
   
