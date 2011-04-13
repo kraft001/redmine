@@ -426,7 +426,7 @@ class Mailer < ActionMailer::Base
       attachments.each do |a|
         attachment :content_type => a.content_type,
                    :body => File.read(a.storage_path + "/" + a.disk_filename),
-                   :filename => a.filename unless a.nil?
+                   :filename => quoted_printable(a.filename) unless a.nil?
       end
     end
   end
@@ -448,6 +448,11 @@ class Mailer < ActionMailer::Base
   end
 
   private
+
+  def quoted_printable(text, charset = nil)
+    charset ||= default_charset
+    super
+  end
 
   def message_id(object)
     @message_id_object = object
