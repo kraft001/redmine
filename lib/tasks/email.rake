@@ -40,7 +40,7 @@ END_DESC
                             :password => cfg['password']}
 
         options = { :issue => {} }
-        %w(project status tracker category priority mail_from).each { |a| options[:issue][a.to_sym] = cfg[a] if cfg[a] }
+        %w(project status tracker category priority mail_from assigned_to).each { |a| options[:issue][a.to_sym] = cfg[a] if cfg[a] }
         options[:allow_override] = cfg['allow_override'] if cfg['allow_override']
         options[:unknown_user] = cfg['unknown_user'] if cfg['unknown_user']
         options[:no_permission_check] = cfg['no_permission_check'] if cfg['no_permission_check']
