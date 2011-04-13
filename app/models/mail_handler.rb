@@ -273,6 +273,7 @@ class MailHandler < ActionMailer::Base
       'category_id' => (k = get_keyword(:category)) && (issue.project.issue_categories.find_by_name(k).try(:id) || \
                                                         issue.project.issue_categories.find_by_id(k).try(:id)),
       'assigned_to_id' => assigned_to.try(:id),
+      'mail_from' => get_keyword(:mail_from),
       'fixed_version_id' => (k = get_keyword(:fixed_version, :override => true)) && issue.project.shared_versions.find_by_name(k).try(:id),
       'start_date' => get_keyword(:start_date, :override => true, :format => '\d{4}-\d{2}-\d{2}'),
       'due_date' => get_keyword(:due_date, :override => true, :format => '\d{4}-\d{2}-\d{2}'),

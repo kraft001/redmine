@@ -38,6 +38,7 @@ class Mailer < ActionMailer::Base
   #   issue_add(issue) => tmail object
   #   Mailer.deliver_issue_add(issue) => sends an email to issue recipients
   def issue_add(issue)
+    from issue.email
     redmine_headers 'Project' => issue.project.identifier,
                     'Issue-Id' => issue.id,
                     'Issue-Author' => issue.author.login
@@ -58,6 +59,7 @@ class Mailer < ActionMailer::Base
   #   Mailer.deliver_issue_edit(journal) => sends an email to issue recipients
   def issue_edit(journal)
     issue = journal.journalized.reload
+    from issue.email
     redmine_headers 'Project' => issue.project.identifier,
                     'Issue-Id' => issue.id,
                     'Issue-Author' => issue.author.login
@@ -413,11 +415,11 @@ class Mailer < ActionMailer::Base
       body render(:file => "#{method_name}.text.plain.rhtml", :body => body, :layout => 'mailer.text.plain.erb')
     else
       # Multipart message with attachments
-      part :content_type => "multipart/alternative" do |a|
-        a.part "text/plain" do |p|
+      part :content_type => "multipart/alternative" do |m|
+        m.part "text/plain" do |p|
           p.body = render(:file => "#{method_name}.text.plain.rhtml", :body => body, :layout => 'mailer.text.plain.erb')
         end
-        a.part "text/html" do |p|
+        m.part "text/html" do |p|
           p.body = render_message("#{method_name}.text.html.rhtml", body)
         end
       end
