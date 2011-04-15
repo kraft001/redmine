@@ -158,7 +158,7 @@ class MailHandler < ActionMailer::Base
     issue.safe_attributes = issue_attributes_from_keywords(issue)
     issue.safe_attributes = {'custom_field_values' => custom_field_values_from_keywords(issue)}
     journal.notes = cleaned_up_text_body
-    add_attachments(issue)
+    journal.details << add_attachments(issue)
     issue.save!
     logger.info "MailHandler: issue ##{issue.id} updated by #{user}" if logger && logger.info
     journal
@@ -197,13 +197,19 @@ class MailHandler < ActionMailer::Base
   end
 
   def add_attachments(obj)
+    details = []
     if email.has_attachments?
       email.attachments.each do |attachment|
-        Attachment.create(:container => obj,
-                          :file => attachment,
-                          :author => user,
-                          :content_type => attachment.content_type)
+        a = Attachment.create(:container => obj,
+                                :file => attachment,
+                                :author => user,
+                                :content_type => attachment.content_type)
+        details << JournalDetail.new(:property => 'attachment',
+                                     :prop_key => a.id,
+                                     :value => a.filename)
       end
+
+      details
     end
   end
 
@@ -361,6 +367,7 @@ class MailHandler < ActionMailer::Base
   def find_user_from_keyword(keyword)
     user ||= User.find_by_mail(keyword)
     user ||= User.find_by_login(keyword)
+    user ||= User.find_by_id(keyword)
     if user.nil? && keyword.match(/ /)
       firstname, lastname = *(keyword.split) # "First Last Throwaway"
       user ||= User.find_by_firstname_and_lastname(firstname, lastname)
