@@ -208,9 +208,9 @@ class MailHandler < ActionMailer::Base
                                      :prop_key => a.id,
                                      :value => a.filename)
       end
-
-      details
     end
+
+    details
   end
 
   # Adds To and Cc as watchers of the given object if the sender has the
