@@ -128,7 +128,7 @@ class Repository::Cvs < Repository
     fetch_since = latest_changeset ? latest_changeset.committed_on : nil
     transaction do
       tmp_rev_num = 1
-      scm.revisions('', fetch_since, nil, :with_paths => true) do |revision|
+      scm.revisions('', fetch_since, nil, :log_encoding => repo_log_encoding) do |revision|
         # only add the change to the database, if it doen't exists. the cvs log
         # is not exclusive at all. 
         tmp_time = revision.time.clone
@@ -137,11 +137,12 @@ class Repository::Cvs < Repository
 	                         revision.paths[0][:revision]
 	                           )
           cmt = Changeset.normalize_comments(revision.message, repo_log_encoding)
+          author_utf8 = Changeset.to_utf8(revision.author, repo_log_encoding)
           cs  = changesets.find(
             :first,
             :conditions => {
                 :committed_on => tmp_time - time_delta .. tmp_time + time_delta,
-                :committer    => revision.author,
+                :committer    => author_utf8,
                 :comments     => cmt
                 }
              )

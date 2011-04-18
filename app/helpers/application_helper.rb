@@ -223,6 +223,7 @@ module ApplicationHelper
   
   # Renders the project quick-jump box
   def render_project_jump_box
+    return unless User.current.logged?
     projects = User.current.memberships.collect(&:project).compact.uniq
     if projects.any?
       s = '<select onchange="if (this.value != \'\') { window.location = this.value; }">' +
@@ -389,7 +390,7 @@ module ApplicationHelper
       h(Setting.app_title)
     else
       b = []
-      ancestors = (@project.root? ? [] : @project.ancestors.visible)
+      ancestors = (@project.root? ? [] : @project.ancestors.visible.all)
       if ancestors.any?
         root = ancestors.shift
         b << link_to_project(root, {:jump => current_menu_item}, :class => 'root')
