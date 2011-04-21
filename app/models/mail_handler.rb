@@ -312,17 +312,40 @@ class MailHandler < ActionMailer::Base
     if parts.empty?
       parts << @email
     end
-    plain_text_part = parts.detect {|p| p.content_type == 'text/plain'}
-    if plain_text_part.nil?
-      # no text/plain part found, assuming html-only email
+    html_text_part = parts.detect {|p| p.content_type == 'text/html'}
+    unless html_text_part.nil?
       # strip html tags and remove doctype directive
-      @plain_text_body = strip_tags(@email.body.to_s)
-      @plain_text_body.gsub! %r{^<!DOCTYPE .*$}, ''
+      @plain_text_body = strip_tags(html_text_part.body.to_s)
     else
-      @plain_text_body = plain_text_part.body.to_s
+      @plain_text_body = @email.body.to_s
     end
     @plain_text_body.strip!
     @plain_text_body
+  end
+
+  TAGS = {
+    %r{^<!DOCTYPE .*$} => "",
+    %r{<style>.+</style>}m => "",
+    %r{<br.*?>} => "\n"
+  }
+
+  def strip_tags(html)
+    TAGS.each do |tag, replace|
+      html.gsub!(tag, replace)
+    end
+    html = parse_quote(html)
+    super
+  end
+
+  def parse_quote(body)
+    body.gsub(
+      quote(body),
+      quote(body).split("\n").map {|row| "> #{row}" }.join("\n")
+    )
+  end
+
+  def quote(body)
+    body.match(%r{<blockquote.*?>.+</blockquote>}m).to_s
   end
 
   def cleaned_up_text_body
