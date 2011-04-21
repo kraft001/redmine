@@ -281,7 +281,7 @@ function observeProjectModules() {
     setVisible('project_trackers', c);
     setVisible('project_issue_custom_fields', c);
   };
-  
+
   Event.observe(window, 'load', f);
   Event.observe('project_enabled_module_names_issue_tracking', 'change', f);
 }
@@ -296,43 +296,43 @@ var WarnLeavingUnsaved = Class.create({
 	observedElements: false,
 	changedForms: false,
 	message: null,
-	
+
 	initialize: function(message){
 		this.observedForms = $$('form');
 		this.observedElements =  $$('textarea');
 		this.message = message;
-		
+
 		this.observedElements.each(this.observeChange.bind(this));
 		this.observedForms.each(this.submitAction.bind(this));
-		
+
 		window.onbeforeunload = this.unload.bind(this);
 	},
-	
+
 	unload: function(){
 		if(this.changedForms)
       return this.message;
 	},
-	
+
 	setChanged: function(){
     this.changedForms = true;
 	},
-	
+
 	setUnchanged: function(){
     this.changedForms = false;
 	},
-	
+
 	observeChange: function(element){
     element.observe('change',this.setChanged.bindAsEventListener(this));
 	},
-	
+
 	submitAction: function(element){
     element.observe('submit',this.setUnchanged.bindAsEventListener(this));
 	}
 });
 
-/* 
+/*
  * 1 - registers a callback which copies the csrf token into the
- * X-CSRF-Token header with each ajax request.  Necessary to 
+ * X-CSRF-Token header with each ajax request.  Necessary to
  * work with rails applications which have fixed
  * CVE-2011-0447
  * 2 - shows and hides ajax indicator
@@ -362,10 +362,30 @@ Ajax.Responders.register({
     }
 });
 
+function toggleQuote(event) {
+  var element = Event.element(event);
+  element.next('blockquote').toggle();
+}
+
+function hiddenQuotes(){
+  $$('blockquote').each(function(quote) {
+  	quote.hide();
+  	new Insertion.Before(quote, '<a href="javascript::void();" class="icon icon-add blockquote">...</a>');
+  	var button = quote.previous('a');
+  	button.observe('click', toggleQuote);
+  });
+}
+
 function hideOnLoad() {
   $$('.hol').each(function(el) {
   	el.hide();
-	});
+  });
 }
 
-Event.observe(window, 'load', hideOnLoad);
+function onLoad() {
+  hideOnLoad();
+  hiddenQuotes();
+}
+
+Event.observe(window, 'load', onLoad);
+
