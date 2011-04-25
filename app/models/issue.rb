@@ -238,7 +238,6 @@ class Issue < ActiveRecord::Base
   end
 
   safe_attributes 'tracker_id',
-    'status_id',
     'parent_issue_id',
     'category_id',
     'assigned_to_id',
@@ -267,7 +266,7 @@ class Issue < ActiveRecord::Base
       user.allowed_to?(:set_issues_private, issue.project) ||
         (issue.author == user && user.allowed_to?(:set_own_issues_private, issue.project))
     }
-  
+
   # Safely sets attributes
   # Should be called from controllers instead of #attributes=
   # attr_accessible is too rough because we still want things like
