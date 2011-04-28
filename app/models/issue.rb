@@ -259,7 +259,9 @@ class Issue < ActiveRecord::Base
     'assigned_to_id',
     'fixed_version_id',
     'done_ratio',
-    :if => lambda {|issue, user| issue.new_statuses_allowed_to(user).any? }
+    :if => lambda {|issue, user| issue.new_statuses_allowed_to(user).any? ||
+                                 issue.is_author_or_assigned?(user)
+          }
 
   safe_attributes 'is_private',
     :if => lambda {|issue, user|
@@ -285,7 +287,7 @@ class Issue < ActiveRecord::Base
     end
 
     if attrs['status_id']
-      unless new_statuses_allowed_to(user).collect(&:id).include?(attrs['status_id'].to_i)
+      unless new_statuses_allowed_to(user).collect(&:id).include?(attrs['status_id'].to_i) || is_author_or_assigned?
         attrs.delete('status_id')
       end
     end
@@ -303,6 +305,10 @@ class Issue < ActiveRecord::Base
     end
 
     self.attributes = attrs
+  end
+
+  def is_author_or_assigned?(user = User.current)
+    author.eql?(user) || assigned_to.eql?(user)
   end
 
   def done_ratio
