@@ -310,6 +310,14 @@ en:
   field_warn_on_leaving_unsaved: "Warn me when leaving a page with unsaved text"
   field_issues_visibility: Issues visibility
   field_is_private: Private
+
+  field_commit_logs_encoding: Commit messages encoding
+  field_scm_path_encoding: Path encoding
+  field_path_to_repository: Path to repository
+  field_root_directory: Root directory
+  field_cvsroot: CVSROOT
+  field_cvs_module: Module
+
   setting_app_title: Application title
   setting_app_subtitle: Application subtitle
   setting_welcome_text: Welcome text
@@ -336,7 +344,6 @@ en:
   setting_cross_project_issue_relations: Allow cross-project issue relations
   setting_issue_list_default_columns: Default columns displayed on the issue list
   setting_repositories_encodings: Repositories encodings
-  setting_commit_logs_encoding: Commit messages encoding
   setting_emails_header: Emails header
   setting_emails_footer: Emails footer
   setting_protocol: Protocol
@@ -935,6 +942,10 @@ en:
   text_zoom_in: Zoom in
   text_zoom_out: Zoom out
   text_warn_on_leaving_unsaved: "The current page contains unsaved text that will be lost if you leave this page."
+
+  text_scm_path_encoding_note: "Default: UTF-8"
+  text_git_repository_note: "Bare and local repository (e.g. /gitrepo, c:\gitrepo)"
+  text_mercurial_repository_note: "Local repository (e.g. /hgrepo, c:\hgrepo)"
 
   default_role_manager: Manager
   default_role_developer: Developer

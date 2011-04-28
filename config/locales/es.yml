@@ -680,7 +680,7 @@ es:
   notice_default_data_loaded: Configuración por defecto cargada correctamente.
   notice_email_error: "Ha ocurrido un error mientras enviando el correo (%{value})"
   notice_email_sent: "Se ha enviado un correo a %{value}"
-  notice_failed_to_save_issues: "Imposible grabar %s peticion(es) en %{count} seleccionado: %{ids}."
+  notice_failed_to_save_issues: "Imposible grabar %{count} peticion(es) de %{total} seleccionada(s): %{ids}."
   notice_feeds_access_key_reseted: Su clave de acceso para RSS ha sido reiniciada.
   notice_file_not_found: La página a la que intenta acceder no existe.
   notice_locking_conflict: Los datos han sido modificados por otro usuario.
@@ -755,7 +755,6 @@ es:
   setting_autologin: Conexión automática
   setting_bcc_recipients: Ocultar las copias de carbón (bcc)
   setting_commit_fix_keywords: Palabras clave para la corrección
-  setting_commit_logs_encoding: Codificación de los mensajes de commit
   setting_commit_ref_keywords: Palabras clave para la referencia
   setting_cross_project_issue_relations: Permitir relacionar peticiones de distintos proyectos
   setting_date_format: Formato de fecha
@@ -1000,3 +999,12 @@ es:
   permission_set_issues_private: Set issues public or private
   label_issues_visibility_public: All non private issues
   text_issues_destroy_descendants_confirmation: This will also delete %{count} subtask(s).
+  field_commit_logs_encoding: Codificación de los mensajes de commit
+  field_scm_path_encoding: Path encoding
+  text_scm_path_encoding_note: "Default: UTF-8"
+  field_path_to_repository: Path to repository
+  field_root_directory: Root directory
+  field_cvs_module: Module
+  field_cvsroot: CVSROOT
+  text_git_repository_note: Bare and local repository (e.g. /gitrepo, c:\gitrepo)
+  text_mercurial_repository_note: Local repository (e.g. /hgrepo, c:\hgrepo)
