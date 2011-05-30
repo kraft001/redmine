@@ -362,7 +362,7 @@ class MailHandler < ActionMailer::Base
       user.mail = addr.spec
 
       names = addr.name.blank? ? addr.spec.gsub(/@.*$/, '').split('.') : addr.name.split
-      user.firstname = names.shift
+      user.firstname = decode(names.shift)
       user.lastname = names.join(' ')
       user.lastname = '-' if user.lastname.blank?
 
@@ -394,6 +394,17 @@ class MailHandler < ActionMailer::Base
       user ||= User.find_by_firstname_and_lastname(firstname, lastname)
     end
     user
+  end
+
+  def self.decode(text)
+    return text unless text.match(/\=\?.+?\?.+?\?.+\?=/)
+    text = text.split('?')
+    case text[2]
+    when 'Q'
+      text[3].unpack('M')
+    else
+      text[3].unpack('m')
+    end
   end
 end
 
