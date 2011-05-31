@@ -401,9 +401,9 @@ class MailHandler < ActionMailer::Base
     text = text.split('?')
     case text[2]
     when 'Q'
-      text[3].unpack('M')
+      text[3].unpack('M').join
     else
-      text[3].unpack('m')
+      text[3].unpack('m').join
     end
   end
 end
