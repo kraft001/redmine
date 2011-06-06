@@ -401,10 +401,11 @@ class MailHandler < ActionMailer::Base
     text = text.split('?')
     case text[2]
     when 'Q'
-      text[3].unpack('M').join
+      text[3].unpack('M').join.to_utf8(text[1])
     else
-      text[3].unpack('m').join
+      text[3].unpack('m').join.to_utf8(text[1])
     end
   end
+
 end
 
