@@ -322,9 +322,9 @@ class MailHandler < ActionMailer::Base
   end
 
   TAGS = {
-    %r{^<!DOCTYPE .*$} => "",
-    %r{<style>.+</style>}m => "",
-    %r{<br.*?>} => "\n"
+    %r{^<!DOCTYPE .*$}i => "",
+    %r{<style>.+</style>}im => "",
+    %r{<br.*?>}i => "\n"
   }
 
   def strip_tags(html)
@@ -343,7 +343,7 @@ class MailHandler < ActionMailer::Base
   end
 
   def quote(body)
-    body.match(%r{<blockquote.*?>.+</blockquote>}m).to_s
+    body.match(%r{<blockquote.*?>.+</blockquote>}im).to_s
   end
 
   def cleaned_up_text_body
