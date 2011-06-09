@@ -313,9 +313,9 @@ class MailHandler < ActionMailer::Base
     html_text_part = parts.detect {|p| p.content_type == 'text/html'}
     unless html_text_part.nil?
       # strip html tags and remove doctype directive
-      @plain_text_body = strip_tags(html_text_part.body.to_s)
+      @plain_text_body = brutal_strip_tags(html_text_part.body.to_s)
     else
-      @plain_text_body = @email.body.to_s
+      @plain_text_body = brutal_strip_tags(@email.body.to_s)
     end
     @plain_text_body.strip!
     @plain_text_body
@@ -327,12 +327,25 @@ class MailHandler < ActionMailer::Base
     %r{<br.*?>}i => "\n"
   }
 
+  BRUTAL = {
+    %r{<.+?>} => "",
+    %r{</.+?>} => ""
+  }
+
   def strip_tags(html)
     TAGS.each do |tag, replace|
       html.gsub!(tag, replace)
     end
     html = parse_quote(html)
     super
+  end
+
+  def brutal_strip_tags(html)
+    html = strip_tags(html)
+    BRUTAL.each do |tag, replace|
+      html.gsub!(tag, replace)
+    end
+    html
   end
 
   def parse_quote(body)
