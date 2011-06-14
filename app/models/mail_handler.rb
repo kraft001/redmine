@@ -328,8 +328,8 @@ class MailHandler < ActionMailer::Base
   }
 
   BRUTAL = {
-    %r{<.+?>} => "",
-    %r{</.+?>} => ""
+    %r{<.+?>m} => "",
+    %r{</.+?>m} => ""
   }
 
   def strip_tags(html)
