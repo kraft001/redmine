@@ -45,19 +45,23 @@ END_DESC
         options[:unknown_user] = cfg['unknown_user'] if cfg['unknown_user']
         options[:no_permission_check] = cfg['no_permission_check'] if cfg['no_permission_check']
 
-        case cfg['protocol']
-          when 'imap'
-            protocol_options.merge!({:ssl => cfg['ssl'],
-                                     :folder => cfg['folder'],
-                                     :move_on_success => cfg['move_on_success'],
-                                     :move_on_failure => cfg['move_on_failure']})
-            Redmine::IMAP.check(protocol_options, options)
-          when 'pop3'
-            protocol_options.merge!({:apop => cfg['apop'],
-                                     :delete_unprocessed => cfg['delete_unprocessed']})
-            Redmine::POP3.check(protocol_options, options)
-          else
-            MailHandler.receive(STDIN.read, options)
+        begin
+          case cfg['protocol']
+            when 'imap'
+              protocol_options.merge!({:ssl => cfg['ssl'],
+                                       :folder => cfg['folder'],
+                                       :move_on_success => cfg['move_on_success'],
+                                       :move_on_failure => cfg['move_on_failure']})
+              Redmine::IMAP.check(protocol_options, options)
+            when 'pop3'
+              protocol_options.merge!({:apop => cfg['apop'],
+                                       :delete_unprocessed => cfg['delete_unprocessed']})
+              Redmine::POP3.check(protocol_options, options)
+            else
+              MailHandler.receive(STDIN.read, options)
+          end
+        rescue Exception => e
+          puts "Error: #{e.message}"
         end
       end
     end
