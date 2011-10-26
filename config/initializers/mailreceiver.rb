@@ -1,5 +1,6 @@
 class Mailreceiver
-  def receive(config_file)
+  include Singleton
+  def self.receive(config_file)
 
       emails = YAML::load(open("#{RAILS_ROOT}/config/#{config_file}"))[RAILS_ENV]
       emails.each do |email, cfg|
