@@ -44,7 +44,7 @@ Rails::Initializer.run do |config|
   # Use Active Record's schema dumper instead of SQL when creating the test database
   # (enables use of different database adapters for development and test environments)
   # config.active_record.schema_format = :ruby
-  
+
   # Deliveries are disabled by default. Do NOT modify this section.
   # Define your email configuration in configuration.yml instead.
   # It will automatically turn deliveries on
@@ -52,7 +52,7 @@ Rails::Initializer.run do |config|
 
   config.gem 'rubytree', :lib => 'tree'
   config.gem 'coderay', :version => '~>0.9.7'
-  config.gem 'appjob', :version => '0.0.9'
+  config.gem 'appjob', :version => '0.0.12'
   
   # Load any local configuration that is kept out of source control
   # (e.g. gems, patches).
