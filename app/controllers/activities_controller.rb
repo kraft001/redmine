@@ -1,6 +1,6 @@
 class ActivitiesController < ApplicationController
   menu_item :activity
-  before_filter :find_optional_project
+  before_filter :find_optional_project, :authorize
   accept_key_auth :index
 
   def index
