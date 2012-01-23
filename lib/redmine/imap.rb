@@ -40,10 +40,11 @@ module Redmine
             imap.store(message_id, "+FLAGS", [:Seen, :Deleted])
           else
             logger.debug "Message #{message_id} can not be processed" if logger && logger.debug?
-            imap.store(message_id, "+FLAGS", [:Seen])
+            #imap.store(message_id, "+FLAGS", [:Seen])
             if imap_options[:move_on_failure]
               imap.copy(message_id, imap_options[:move_on_failure])
-              imap.store(message_id, "+FLAGS", [:Deleted])
+              #imap.store(message_id, "+FLAGS", [:Deleted])
+              imap.store(message_id, "+FLAGS", [:Seen, :Deleted])
             end
           end
         end
