@@ -5,12 +5,12 @@ class Mailreceiver
       cfg = cfg.symbolize_keys
       puts "#{email} handling..."
       protocol_options = {
-        :general => cfg.pick(%w(host port username password)),
-        :imap => cfg.pick(%w(ssl folder move_on_success move_on_failure)),
-        :pop3 => cfg.pick(%w(delete_unprocessed apop))
+        :general => cfg.pick(*%w(host port username password)),
+        :imap => cfg.pick(*%w(ssl folder move_on_success move_on_failure)),
+        :pop3 => cfg.pick(*%w(delete_unprocessed apop))
       }
-      options = cfg.pick(%w(allow_override unknown_user no_permission_check))
-      options[:issue] = cfg.pick(%w(project status tracker category priority mail_from assigned_to))
+      options = cfg.pick(*%w(allow_override unknown_user no_permission_check))
+      options[:issue] = cfg.pick(*%w(project status tracker category priority mail_from assigned_to))
 
       begin
         if %w(imap pop3).include?(cfg[:protocol])
