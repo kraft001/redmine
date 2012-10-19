@@ -1,7 +1,7 @@
 class Mailreceiver
   def self.receive(config_file)
     emails = YAML::load(open("#{RAILS_ROOT}/config/#{config_file}"))[RAILS_ENV]
-    shout "Processing config file #{config_file} with #{email.size} emails"
+    shout "Processing config file #{config_file} with #{emails.size} emails"
     emails.each do |email, cfg|
       shout "#{email} handling..."
       protocol_options = {
