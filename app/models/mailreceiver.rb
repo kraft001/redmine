@@ -1,8 +1,9 @@
 class Mailreceiver
   def self.receive(config_file)
     emails = YAML::load(open("#{RAILS_ROOT}/config/#{config_file}"))[RAILS_ENV]
+    shout "Processing config file #{config_file} with #{email.size} emails"
     emails.each do |email, cfg|
-      puts "#{email} handling..."
+      shout "#{email} handling..."
       protocol_options = {
         :general => cfg.pick(*%w(host port username password)),
         :imap => cfg.pick(*%w(ssl folder move_on_success move_on_failure)),
@@ -25,6 +26,11 @@ class Mailreceiver
       rescue Exception => e
         puts "Error: #{e.message}"
       end
+      shout "#{email} finished"
     end
+  end
+
+  def self.shout(string)
+    puts "#{Time.now.formatted(true)}: #{string}"
   end
 end

@@ -31,15 +31,15 @@ module Redmine
         imap.select(folder)
         imap.search(['NOT', 'SEEN']).each do |message_id|
           msg = imap.fetch(message_id,'RFC822')[0].attr['RFC822']
-          logger.debug "Receiving message #{message_id}" if logger && logger.debug?
+          shout "Receiving message #{message_id}"
           if MailHandler.receive(msg, options)
-            logger.debug "Message #{message_id} successfully received" if logger && logger.debug?
+            shout "Message #{message_id} successfully received"
             if imap_options[:move_on_success]
               imap.copy(message_id, imap_options[:move_on_success])
             end
             imap.store(message_id, "+FLAGS", [:Seen, :Deleted])
           else
-            logger.debug "Message #{message_id} can not be processed" if logger && logger.debug?
+            shout "Message #{message_id} can not be processed"
             #imap.store(message_id, "+FLAGS", [:Seen])
             if imap_options[:move_on_failure]
               imap.copy(message_id, imap_options[:move_on_failure])
@@ -60,6 +60,11 @@ module Redmine
 
       def logger
         RAILS_DEFAULT_LOGGER
+      end
+
+      def shout(string)
+        #logger.debug string if logger && logger.debug?
+        put "#{Time.now.formatted(true)}: #{string}"
       end
     end
   end
