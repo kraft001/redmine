@@ -31,6 +31,11 @@ class Mailreceiver
   end
 
   def self.shout(string)
-    puts "#{Time.now.formatted(true)}: #{string}"
+    logger.info "#{Time.now.formatted(true)}: #{string}"
+  end
+
+  def self.logger
+    @logger ||= Logger.new(File.join(Rails.root, 'log', 'scheduler.log'))
+    @logger
   end
 end

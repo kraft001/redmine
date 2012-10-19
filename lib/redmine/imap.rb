@@ -59,12 +59,14 @@ module Redmine
       private
 
       def logger
-        RAILS_DEFAULT_LOGGER
+        #RAILS_DEFAULT_LOGGER
+        @logger ||= Logger.new(File.join(Rails.root, 'log', 'scheduler.log'))
+        @logger
       end
 
       def shout(string)
         #logger.debug string if logger && logger.debug?
-        puts "#{Time.now.formatted(true)}: #{string}"
+        logger.info "#{Time.now.formatted(true)}: #{string}"
       end
     end
   end
