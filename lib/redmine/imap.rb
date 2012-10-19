@@ -64,7 +64,7 @@ module Redmine
 
       def shout(string)
         #logger.debug string if logger && logger.debug?
-        put "#{Time.now.formatted(true)}: #{string}"
+        puts "#{Time.now.formatted(true)}: #{string}"
       end
     end
   end
