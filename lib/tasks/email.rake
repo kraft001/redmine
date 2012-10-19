@@ -82,6 +82,12 @@ END_DESC
         abort l(:notice_email_error, e.message)
       end
     end
+
+    desc "Receive emails, specified in config file"
+    task :receive_from => :environment do
+      config_file = ENV['CONFIG'] || 'mail_handler.yml'
+      Mailreceiver::receive(config_file)
+    end
   end
 end
 
