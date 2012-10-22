@@ -65,9 +65,21 @@ class Scheduler
   # Job-Definitions go here
   #
   def setup_jobs
-    @rufus_scheduler.every('5m') do
-      puts "hello from your test job"
+    #@rufus_scheduler.every('5m') do
+    #  puts "hello from your test job"
+    #end
+    @rufus_scheduler.every '11m', :allow_overlapping => false, :first_in => '5m' do
+      Mailreceiver::receive('mail_handler.yml')
     end
+
+    @rufus_scheduler.every '13m', :allow_overlapping => false, :first_in => '5m' do
+      Mailreceiver::receive('mail_handler_help.yml')
+    end
+
+    @rufus_scheduler.every '17m', :allow_overlapping => false, :first_in => '5m' do
+      Mailreceiver::receive('mail_handler_cz.yml')
+    end
+
     puts 'scheduler initialized.'
   end
 
