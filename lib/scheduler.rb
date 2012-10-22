@@ -46,7 +46,7 @@ class Scheduler
       end
     ensure
       lock.flock(File::LOCK_UN)
-      File.delete lock
+      File.delete lock_file
     end
   end
 
