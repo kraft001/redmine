@@ -53,12 +53,14 @@ class Scheduler
   def initialize
     @rufus_scheduler = Rufus::Scheduler.start_new
     # install exception handler to report errors via Airbrake
+=begin
     @rufus_scheduler.class_eval do
       define_method :handle_exception do |job, exception|
         puts "job #{job.job_id} caught exception '#{exception}'"
         Airbrake.notify exception
       end
     end
+=end
   end
 
   #
