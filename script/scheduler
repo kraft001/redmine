@@ -19,6 +19,7 @@ Daemons.run_proc("scheduler", options) do
 
   Dir.chdir(root)
   require(File.join(root, 'config', 'environment'))
+  require 'rufus/scheduler'
 
   scheduler = Rufus::Scheduler.start_new
 
