@@ -37,7 +37,7 @@ class Scheduler
   # executes the given block if the lock can be acquired, otherwise nothing is
   # done and false returned.
   def self.with_lockfile(lock_file)
-    lock = File.new(lock_file, 'w')
+    lock = File.open(lock_file, 'w')
     begin
       if lock.flock(File::LOCK_EX | File::LOCK_NB)
         yield
@@ -46,7 +46,7 @@ class Scheduler
       end
     ensure
       lock.flock(File::LOCK_UN)
-      File.delete lock_file
+      # File.delete lock_file
     end
   end
 
