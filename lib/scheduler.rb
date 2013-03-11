@@ -82,6 +82,10 @@ class Scheduler
       Mailreceiver::receive('mail_handler_cz.yml')
     end
 
+    @rufus_scheduler.every '19m', :allow_overlapping => false, :first_in => '5m' do
+      Mailreceiver::receive('mail_handler_offline.yml')
+    end
+
     puts 'scheduler initialized.'
   end
 
