@@ -19,6 +19,7 @@ class Mailreceiver
             merge(protocol_options[cfg['protocol'].to_sym]).
             symbolize_keys
           klass = "Redmine::#{cfg['protocol'].upcase}".constantize
+          shout "Fetching emails via protocol: #{cfg['protocol']}"
           klass.check(connection_options, options)
         else
           MailHandler.receive(STDIN.read, options)

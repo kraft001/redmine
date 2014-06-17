@@ -60,7 +60,7 @@ module Redmine
 
       def logger
         #RAILS_DEFAULT_LOGGER
-        @logger ||= Logger.new(File.join(Rails.root, 'log', 'scheduler.log'))
+        @logger ||= Logger.new(File.join(Rails.root, 'log', 'imap.log'))
         @logger
       end
 
